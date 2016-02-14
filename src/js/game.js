@@ -10,12 +10,11 @@ var scoreText;
 
 function init() {
     game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
-    //game.scale.refresh();
 }
 
 function preload() {
     game.load.image('river', 'assets/images/River-Obstacles.jpg');
-    game.load.image('tilly', 'assets/images/Tilly-Sprite/Tilly-Sprite_0007_Layer-3.png');
+    game.load.image('tilly', 'assets/images/Tilly-Sprite.png');
 }
 
 function create() {
