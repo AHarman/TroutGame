@@ -1,5 +1,5 @@
 { 
-    
+
     "river-collision-top": [
         
         {
@@ -526,6 +526,20 @@
             "density": 2, "friction": 0, "bounce": 0, 
             "filter": { "categoryBits": 1, "maskBits": 65535 },
             "shape": [   7621, 92.5  ,  11006, 145.5  ,  8798, 123.5  ]
+        }
+    ]
+    ,
+    "Tilly-Sprite_0000_Layer-10": [
+        
+        {
+            "density": 2, "friction": 0, "bounce": 0, 
+            "filter": { "categoryBits": 1, "maskBits": 65535 },
+            "shape": [   0, 0  ,  341, 0  ,  557, 86  ,  599.5, 142  ,  542, 171  ,  313, 229  ,  0, 229  ]
+        } ,
+        {
+            "density": 2, "friction": 0, "bounce": 0, 
+            "filter": { "categoryBits": 1, "maskBits": 65535 },
+            "shape": [   599.5, 142  ,  557, 86  ,  599, 104  ]
         }
     ]
     , 
@@ -1544,12 +1558,7 @@
         {
             "density": 2, "friction": 0, "bounce": 0, 
             "filter": { "categoryBits": 1, "maskBits": 65535 },
-            "shape": [   0, 720  ,  0, 680  ,  40, 680  ]
-        } ,
-        {
-            "density": 2, "friction": 0, "bounce": 0, 
-            "filter": { "categoryBits": 1, "maskBits": 65535 },
-            "shape": [   9249.5, 310  ,  9198, 319.5  ,  9147, 289.5  ,  9171.5, 249  ,  9247.5, 242  ]
+            "shape": [   9249.5, 310  ,  9198, 319.5  ,  9147, 289.5  ,  9171.5, 249  ,  9247, 241  ]
         }
     ]
     , 
