@@ -1,36 +1,80 @@
-var game = new Phaser.Game(1300, 720, Phaser.CANVAS, 'gameContainer', { init: init, preload: preload, create: create, update: update });
+"use strict";
+
+var game = new Phaser.Game(1300, 720, Phaser.AUTO, "gameContainer", { init: init, preload: preload, create: create, update: update });
 
 var player;
 var platforms;
 var cursors;
+var bgObstacles
 
-var stars;
-var score = 0;
-var scoreText;
+var tillyScale = 0.3;
 
 function init() {
     game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
 }
 
 function preload() {
-    game.load.image('river', 'assets/images/River-Obstacles.jpg');
-    game.load.image('tilly', 'assets/images/Tilly-Sprite.png');
+    game.load.image("river", "assets/images/River-Obstacles.jpg");
+    game.load.image("tilly", "assets/images/Tilly-Sprite.png");
+
+    game.load.physics("physics-data", "assets/physics.json");
 }
 
 function create() {
-    var bg = game.add.sprite(0, 0, 'river');
+    game.world.setBounds(0, 0, 24588, 720);
+    game.physics.startSystem(Phaser.Physics.P2JS);
+    game.physics.restitution = 0;
 
-    player = game.add.sprite(32, game.world.height - 150, 'tilly');
-    player.scale.set(0.3);
+    var bg = game.add.image(0,0, "river");
+    bgObstacles = game.add.sprite(12, 15);
+    game.physics.p2.enable(bgObstacles, true);
+    bgObstacles.body.clearShapes();
+    bgObstacles.body.loadPolygon("physics-data", "river-collision-rock-1");
+    bgObstacles.body.loadPolygon("physics-data", "river-collision-rock-2");
+    bgObstacles.body.loadPolygon("physics-data", "river-collision-rock-3");
+    bgObstacles.body.loadPolygon("physics-data", "river-collision-rock-4");
+    bgObstacles.body.loadPolygon("physics-data", "river-collision-rock-5");
+    bgObstacles.body.loadPolygon("physics-data", "river-collision-rock-6");
+    bgObstacles.body.loadPolygon("physics-data", "river-collision-rock-7");
+    bgObstacles.body.loadPolygon("physics-data", "river-collision-rock-8");
+    bgObstacles.body.loadPolygon("physics-data", "river-collision-rock-9");
+    bgObstacles.body.loadPolygon("physics-data", "river-collision-rock-10");
+    bgObstacles.body.loadPolygon("physics-data", "river-collision-rock-11");
+    bgObstacles.body.loadPolygon("physics-data", "river-collision-rock-12");
+    bgObstacles.body.loadPolygon("physics-data", "river-collision-top");
+    bgObstacles.body.loadPolygon("physics-data", "river-collision-bot-1");
+    bgObstacles.body.loadPolygon("physics-data", "river-collision-bot-2");
+    bgObstacles.body.loadPolygon("physics-data", "river-collision-bot-3");
+    bgObstacles.body.loadPolygon("physics-data", "river-collision-bot-4");
+    bgObstacles.body.loadPolygon("physics-data", "river-collision-bot-5");
+    bgObstacles.body.loadPolygon("physics-data", "river-collision-bot-6");
+    bgObstacles.body.static = true;
 
-    game.physics.arcade.enable(player);
-    player.body.collideWorldBounds = true;
+    player = game.add.sprite(32, game.world.height - 150, "tilly");
+    resizePolygons("physics-data", "Tilly-Sprite", tillyScale);
+    player.scale.set(tillyScale);
+    game.physics.p2.enable(player, true);
+    player.body.clearShapes();
+    player.body.loadPolygon("physics-data", "Tilly-Sprite");
+    player.body.fixedRotation = true;
 
     cursors = game.input.keyboard.createCursorKeys();
 
-    game.world.setBounds(0, 0, 24588, 720);
+
     game.camera.follow(player);
     game.camera.deadzone = new Phaser.Rectangle(100, 0, 200, 720);
+}
+
+function resizePolygons(key, object, scale) {
+    var polygons = game.cache.getPhysicsData(key, object);
+    for (var i = 0; i < polygons.length; i++) {
+        console.log(polygons[i].shape);
+        for (var j = 0; j < polygons[i]["shape"].length; j++) {
+            polygons[i].shape[j] *= scale;
+        }
+        console.log(polygons[i].shape);
+    }
+    //game.cache.addPhysicsData(key + "-scaled", null, polygons)
 }
 
 function update() {
@@ -46,7 +90,7 @@ function update() {
     if (cursors.right.isDown)
     {
         player.body.velocity.x = 150;
-        player.animations.play('right');
+        player.animations.play("right");
     }
     else if (player.position.x - game.camera.x > 100)
     {
