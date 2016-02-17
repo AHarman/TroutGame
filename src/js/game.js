@@ -15,7 +15,7 @@ function init() {
 
 function preload() {
     game.load.image("river", "assets/images/River-Obstacles.jpg");
-    game.load.image("tilly", "assets/images/Tilly-Sprite.png");
+    game.load.spritesheet("tilly", "assets/images/Tilly-Spritesheet.png", 600, 229, 10);
 
     game.load.physics("physics-data", "assets/physics.json");
 }
@@ -51,15 +51,18 @@ function create() {
     bgObstacles.body.static = true;
 
     player = game.add.sprite(32, game.world.height - 150, "tilly");
-    resizePolygons("physics-data", "Tilly-Sprite", tillyScale);
     player.scale.set(tillyScale);
+
+    resizePolygons("physics-data", "Tilly-Sprite", tillyScale);
     game.physics.p2.enable(player, true);
     player.body.clearShapes();
     player.body.loadPolygon("physics-data", "Tilly-Sprite");
     player.body.fixedRotation = true;
 
-    cursors = game.input.keyboard.createCursorKeys();
+    var swim = player.animations.add("swim")
+    player.animations.play("swim", 15, true);
 
+    cursors = game.input.keyboard.createCursorKeys();
 
     game.camera.follow(player);
     game.camera.deadzone = new Phaser.Rectangle(100, 0, 200, 720);
