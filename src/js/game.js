@@ -1,13 +1,13 @@
 "use strict";
 
+var debug = false;
+
 var game = new Phaser.Game(1300, 720, Phaser.AUTO, "gameContainer", { init: init, preload: preload, create: create, update: update });
 
 var player;
 var platforms;
 var cursors;
 var bgObstacles
-
-var tillyScale = 0.3;
 
 function init() {
     game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
@@ -52,7 +52,7 @@ function createPlayer() {
 function createBackground() {
     var bg = game.add.image(0,0, "river");
     bgObstacles = game.add.sprite(12, 15);
-    game.physics.p2.enable(bgObstacles, true);
+    game.physics.p2.enable(bgObstacles, debug);
     bgObstacles.body.clearShapes();
     bgObstacles.body.loadPolygon("physics-data", "river-collision-rock-1");
     bgObstacles.body.loadPolygon("physics-data", "river-collision-rock-2");
@@ -77,12 +77,12 @@ function createBackground() {
 }
 
 function createPlayer() {
-
+    var tillyScale = 0.3;
     player = game.add.sprite(32, game.world.height - 150, "tilly");
     player.scale.set(tillyScale);
     player.alpha = 0.9;
     
-    game.physics.p2.enable(player, true);
+    game.physics.p2.enable(player, debug);
     resizePolygons("physics-data", "Tilly-Sprite", tillyScale);
     player.body.clearShapes();
     player.body.loadPolygon("physics-data", "Tilly-Sprite");
