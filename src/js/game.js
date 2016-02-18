@@ -23,7 +23,8 @@ function preload() {
 function create() {
     game.world.setBounds(0, 0, 24588, 720);
     game.physics.startSystem(Phaser.Physics.P2JS);
-    game.physics.restitution = 0;
+    //game.physics.restitution = 0;
+    //game.physics.p2.world.setGlobalStiffness(1e5);
 
     var bg = game.add.image(0,0, "river");
     bgObstacles = game.add.sprite(12, 15);
@@ -52,6 +53,7 @@ function create() {
 
     player = game.add.sprite(32, game.world.height - 150, "tilly");
     player.scale.set(tillyScale);
+    player.alpha = 0.9;
 
     resizePolygons("physics-data", "Tilly-Sprite", tillyScale);
     game.physics.p2.enable(player, true);
