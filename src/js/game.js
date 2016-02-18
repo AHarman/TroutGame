@@ -22,8 +22,6 @@ function preload() {
 function create() {
     game.world.setBounds(0, 0, 24588, 720);
     game.physics.startSystem(Phaser.Physics.P2JS);
-    //game.physics.restitution = 0;
-    //game.physics.p2.world.setGlobalStiffness(1e5);
 
     createBackground();
     createPlayer();
@@ -41,7 +39,6 @@ function resizePolygons(key, object, scale) {
             polygons[i].shape[j] *= scale;
         }
     }
-    //game.cache.addPhysicsData(key + "-scaled", null, polygons)
 }
 
 function update() {
