@@ -59,8 +59,8 @@ function create() {
     player.body.loadPolygon("physics-data", "Tilly-Sprite");
     player.body.fixedRotation = true;
 
-    var swim = player.animations.add("swim")
-    player.animations.play("swim", 15, true);
+    var swim = player.animations.add("swim");
+    player.animations.play("swim", 5, true);
 
     cursors = game.input.keyboard.createCursorKeys();
 
@@ -71,11 +71,9 @@ function create() {
 function resizePolygons(key, object, scale) {
     var polygons = game.cache.getPhysicsData(key, object);
     for (var i = 0; i < polygons.length; i++) {
-        console.log(polygons[i].shape);
         for (var j = 0; j < polygons[i]["shape"].length; j++) {
             polygons[i].shape[j] *= scale;
         }
-        console.log(polygons[i].shape);
     }
     //game.cache.addPhysicsData(key + "-scaled", null, polygons)
 }
@@ -93,7 +91,6 @@ function update() {
     if (cursors.right.isDown)
     {
         player.body.velocity.x = 150;
-        player.animations.play("right");
     }
     else if (player.position.x - game.camera.x > 100)
     {
@@ -107,5 +104,9 @@ function update() {
     {
         player.body.velocity.y = 150;
     }
-}
 
+
+    player.animations.currentAnim.speed = Math.max( 5,
+                                                    Math.abs(player.body.velocity.x / 10),
+                                                    Math.abs(player.body.velocity.y / 10));
+}
