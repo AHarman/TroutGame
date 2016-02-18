@@ -2,7 +2,7 @@
 
 var debug = false;
 
-var game = new Phaser.Game(1300, 720, Phaser.AUTO, "gameContainer", { init: init, preload: preload, create: create, update: update });
+var game = new Phaser.Game(1300, 720, Phaser.CANVAS, "gameContainer", { init: init, preload: preload, create: create, update: update });
 
 var player;
 var cursors;
@@ -43,10 +43,6 @@ function update() {
     movePlayer();
 }
 
-function createPlayer() {
-
-}
-
 function createBackground() {
     var bg = game.add.image(0,0, "river");
     var bgObstacles = game.add.sprite(12, 15);
@@ -76,7 +72,7 @@ function createBackground() {
 
 function createPlayer() {
     var tillyScale = 0.3;
-    player = game.add.sprite(32, game.world.height - 150, "tilly");
+    player = game.add.sprite(200, game.world.height - 150, "tilly");
     player.scale.set(tillyScale);
     player.alpha = 0.9;
     
