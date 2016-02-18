@@ -16,7 +16,6 @@ function init() {
 function preload() {
     game.load.image("river", "assets/images/River-Obstacles.jpg");
     game.load.spritesheet("tilly", "assets/images/Tilly-Spritesheet.png", 600, 229, 10);
-
     game.load.physics("physics-data", "assets/physics.json");
 }
 
@@ -26,6 +25,34 @@ function create() {
     //game.physics.restitution = 0;
     //game.physics.p2.world.setGlobalStiffness(1e5);
 
+    createBackground();
+    createPlayer();
+
+    cursors = game.input.keyboard.createCursorKeys();
+
+    game.camera.follow(player);
+    game.camera.deadzone = new Phaser.Rectangle(100, 0, 200, 720);
+}
+
+function resizePolygons(key, object, scale) {
+    var polygons = game.cache.getPhysicsData(key, object);
+    for (var i = 0; i < polygons.length; i++) {
+        for (var j = 0; j < polygons[i]["shape"].length; j++) {
+            polygons[i].shape[j] *= scale;
+        }
+    }
+    //game.cache.addPhysicsData(key + "-scaled", null, polygons)
+}
+
+function update() {
+    movePlayer();
+}
+
+function createPlayer() {
+
+}
+
+function createBackground() {
     var bg = game.add.image(0,0, "river");
     bgObstacles = game.add.sprite(12, 15);
     game.physics.p2.enable(bgObstacles, true);
@@ -50,38 +77,22 @@ function create() {
     bgObstacles.body.loadPolygon("physics-data", "river-collision-bot-5");
     bgObstacles.body.loadPolygon("physics-data", "river-collision-bot-6");
     bgObstacles.body.static = true;
+}
+
+function createPlayer() {
 
     player = game.add.sprite(32, game.world.height - 150, "tilly");
     player.scale.set(tillyScale);
     player.alpha = 0.9;
-
-    resizePolygons("physics-data", "Tilly-Sprite", tillyScale);
+    
     game.physics.p2.enable(player, true);
+    resizePolygons("physics-data", "Tilly-Sprite", tillyScale);
     player.body.clearShapes();
     player.body.loadPolygon("physics-data", "Tilly-Sprite");
     player.body.fixedRotation = true;
 
     var swim = player.animations.add("swim");
     player.animations.play("swim", 5, true);
-
-    cursors = game.input.keyboard.createCursorKeys();
-
-    game.camera.follow(player);
-    game.camera.deadzone = new Phaser.Rectangle(100, 0, 200, 720);
-}
-
-function resizePolygons(key, object, scale) {
-    var polygons = game.cache.getPhysicsData(key, object);
-    for (var i = 0; i < polygons.length; i++) {
-        for (var j = 0; j < polygons[i]["shape"].length; j++) {
-            polygons[i].shape[j] *= scale;
-        }
-    }
-    //game.cache.addPhysicsData(key + "-scaled", null, polygons)
-}
-
-function update() {
-    movePlayer();
 }
 
 function movePlayer() {
