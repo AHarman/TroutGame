@@ -81,32 +81,26 @@ function resizePolygons(key, object, scale) {
 }
 
 function update() {
+    movePlayer();
+}
+
+function movePlayer() {
     player.body.velocity.y = 0;
 
     if (player.body.velocity.x > 30)
-    {
         player.body.velocity.x -= 4;
-    } else {
+    else
         player.body.velocity.x = 30;
-    }
 
     if (cursors.right.isDown)
-    {
         player.body.velocity.x = 150;
-    }
     else if (player.position.x - game.camera.x > 100)
-    {
         game.camera.x += 1;
-    }
 
     if (cursors.up.isDown)
-    {
         player.body.velocity.y = -150;
-    } else if (cursors.down.isDown)
-    {
+    else if (cursors.down.isDown)
         player.body.velocity.y = 150;
-    }
-
 
     player.animations.currentAnim.speed = Math.max( 5,
                                                     Math.abs(player.body.velocity.x / 10),
