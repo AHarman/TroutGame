@@ -1,6 +1,5 @@
 var playState = {
 
-
     init: function() {
         game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
     },
@@ -42,6 +41,18 @@ var playState = {
         bgObstacles.body.loadPolygon("physics-data", "river-collision-rock-7");
         bgObstacles.body.loadPolygon("physics-data", "river-collision-rock-8");
         bgObstacles.body.loadPolygon("physics-data", "river-collision-rock-9");
+        bgObstacles.body.loadPolygon("physics-data", "river-collision-rock-10");
+        bgObstacles.body.loadPolygon("physics-data", "river-collision-rock-11");
+        bgObstacles.body.loadPolygon("physics-data", "river-collision-rock-12");
+        bgObstacles.body.loadPolygon("physics-data", "river-collision-top");
+        bgObstacles.body.loadPolygon("physics-data", "river-collision-bot-1");
+        bgObstacles.body.loadPolygon("physics-data", "river-collision-bot-2");
+        bgObstacles.body.loadPolygon("physics-data", "river-collision-bot-3");
+        bgObstacles.body.loadPolygon("physics-data", "river-collision-bot-4");
+        bgObstacles.body.loadPolygon("physics-data", "river-collision-bot-5");
+        bgObstacles.body.loadPolygon("physics-data", "river-collision-bot-6");
+        bgObstacles.body.static = true;
+        return bgObstacles;
     },
 
     resizePolygons: function(key, object, scale) {
