@@ -19,7 +19,7 @@ var startState = {
     },
 
     buttonPressed: function(pointer) {
-        console.log("START THAT GAME");
+        game.state.start("play");
     }
 
 }
