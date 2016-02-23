@@ -1,7 +1,6 @@
 var playState = {
 
     init: function() {
-        game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
     },
 
     preload: function() {
