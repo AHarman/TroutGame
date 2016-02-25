@@ -21,6 +21,7 @@ var playState = {
         this.createBackground();
         this.player = this.createPlayer();
         this.createUI("ui-intro-1");
+        this.createUI("ui-intro-2");
 
         this.cursors = game.input.keyboard.createCursorKeys();
         game.camera.follow(this.player);
@@ -38,15 +39,14 @@ var playState = {
         uiImage.position.x = (game.width  - uiImage.width)  / 2;
         uiImage.position.y = (game.height - uiImage.height) / 2;
         
-        //var button = game.add.button(611, 457, "splashScreen");
         var closeUI = function() { 
                 uiImage.destroy();
                 button.destroy();
                 this.inMenu--;
             };
 
-        var button = game.add.button(611, 457, "splashScreen", closeUI.bind(this));
-        button.width = 62;
+        var button = game.add.button(563, 457, null, closeUI.bind(this));
+        button.width = 110;
         button.height = 62;
         button.input.useHandCursor = true;
 
