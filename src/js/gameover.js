@@ -1,3 +1,5 @@
+"use strict";
+
 var gameOverState = {
     preload: function() {
         game.load.image("gameOver", "assets/images/Game-over.png");

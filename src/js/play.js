@@ -1,3 +1,5 @@
+"use strict";
+
 var playState = {
 
     // Increment this for every open menu
