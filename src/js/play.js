@@ -6,6 +6,8 @@ var playState = {
 
     preload: function() {
         game.load.image("river", "assets/images/River-Obstacles.jpg");
+        game.load.image("healthFrame", "assets/images/ui/UI-Health-Bar.png");
+        game.load.image("healthBar", "assets/images/ui/Health.png")
         game.load.spritesheet("tilly", "assets/images/Tilly-Spritesheet.png", 600, 229, 10);
         game.load.physics("physics-data", "assets/physics.json");
     },
@@ -16,6 +18,12 @@ var playState = {
 
         this.createBackground();
         this.player = this.createPlayer();
+        var healthFrame = game.add.image(10, 10, "healthFrame");
+        healthFrame.fixedToCamera = true;
+        this.healthBar = game.add.image(5, 5, "healthBar");
+        // this.healthBar.anchor.x = 0;
+        // this.healthBar.anchor.y = 0;
+        healthFrame.addChild(this.healthBar);
 
         this.cursors = game.input.keyboard.createCursorKeys();
 
@@ -26,6 +34,10 @@ var playState = {
     update: function() {
         this.movePlayer();
     },
+
+    checkHit: function() {
+        if (this.player
+    }
 
     createBackground: function() {
         var bg = game.add.image(0,0, "river");
