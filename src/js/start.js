@@ -2,7 +2,10 @@
 
 var startState = {
     init: function() {
-        game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+        if (!fullSize) {
+            game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+        }
+        game.renderer.renderSession.roundPixels = true;
     },
 
     preload: function() {
@@ -21,6 +24,5 @@ var startState = {
     buttonPressed: function(pointer) {
         game.state.start("play");
     }
-
 }
-    
+
