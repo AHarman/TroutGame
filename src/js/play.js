@@ -95,8 +95,7 @@ var playState = {
             if (health > 0) {
                 this.healthBar.width = health;
             } else {
-                this.healthBar.destroy();
-                game.paused = true;
+                game.state.start("gameOver");
             }
         }
     },
