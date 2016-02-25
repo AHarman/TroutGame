@@ -1,13 +1,18 @@
 var playState = {
 
+    // Increment this for every open menu
+    inMenu: 0,
+
     init: function() {
     },
 
     preload: function() {
         game.load.image("river", "assets/images/River-Obstacles.jpg");
+        game.load.image("ui-intro-1", "assets/images/ui/UI-Intro-1.png")
+        game.load.image("ui-intro-2", "assets/images/ui/UI-Intro-2.png")
         game.load.spritesheet("tilly", "assets/images/Tilly-Spritesheet.png", 600, 229, 10);
         game.load.physics("physics-data", "assets/physics.json");
-    },
+    ;},
 
     create: function() {
         game.world.setBounds(0, 0, 24588, 720);
@@ -15,15 +20,38 @@ var playState = {
 
         this.createBackground();
         this.player = this.createPlayer();
+        this.createUI("ui-intro-1");
 
         this.cursors = game.input.keyboard.createCursorKeys();
-
         game.camera.follow(this.player);
         game.camera.deadzone = new Phaser.Rectangle(100, 0, 200, 720);
     },
 
     update: function() {
-        this.movePlayer();
+        if (this.inMenu == 0) {
+            this.movePlayer();
+        }
+    },
+
+    createUI: function(key) {
+        var uiImage = game.add.image(0, 0, key);
+        uiImage.position.x = (game.width  - uiImage.width)  / 2;
+        uiImage.position.y = (game.height - uiImage.height) / 2;
+        
+        //var button = game.add.button(611, 457, "splashScreen");
+        var closeUI = function() { 
+                uiImage.destroy();
+                button.destroy();
+                this.inMenu--;
+            };
+
+        var button = game.add.button(611, 457, "splashScreen", closeUI.bind(this));
+        button.width = 62;
+        button.height = 62;
+        button.input.useHandCursor = true;
+
+        uiImage.addChild(button)
+        this.inMenu++;
     },
 
     createBackground: function() {
