@@ -28,8 +28,7 @@ var playState = {
         this.healthBar = game.add.image(5, 5, "healthBar");
         healthFrame.addChild(this.healthBar);
 
-        this.createUI("ui-intro-1");
-        this.createUI("ui-intro-2");
+        this.createUI("ui-intro-1", this.createUI, ["ui-intro-2"]);
 
         this.cursors = game.input.keyboard.createCursorKeys();
         game.camera.follow(this.player);
@@ -42,15 +41,17 @@ var playState = {
         }
     },
 
-    createUI: function(key) {
+    createUI: function(key, callback, args) {
         var uiImage = game.add.image(0, 0, key);
         uiImage.position.x = (game.width  - uiImage.width)  / 2;
         uiImage.position.y = (game.height - uiImage.height) / 2;
-        
+
         var closeUI = function() { 
                 uiImage.destroy();
                 button.destroy();
                 this.inMenu--;
+                if (callback)
+                    callback.apply(this, args);
             };
 
         var button = game.add.button(563, 457, null, closeUI.bind(this));
