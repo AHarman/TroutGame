@@ -21,8 +21,6 @@ var playState = {
         var healthFrame = game.add.image(10, 10, "healthFrame");
         healthFrame.fixedToCamera = true;
         this.healthBar = game.add.image(5, 5, "healthBar");
-        // this.healthBar.anchor.x = 0;
-        // this.healthBar.anchor.y = 0;
         healthFrame.addChild(this.healthBar);
 
         this.cursors = game.input.keyboard.createCursorKeys();
@@ -34,10 +32,6 @@ var playState = {
     update: function() {
         this.movePlayer();
     },
-
-    checkHit: function() {
-        if (this.player
-    }
 
     createBackground: function() {
         var bg = game.add.image(0,0, "river");
@@ -88,10 +82,24 @@ var playState = {
         player.body.loadPolygon("physics-data", "Tilly-Sprite");
         player.body.fixedRotation = true;
 
+        player.body.onBeginContact.add(this.playerCollision.bind(this));
+
         var swim = player.animations.add("swim");
         player.animations.play("swim", 5, true);
         
         return player
+    },
+
+    playerCollision: function(bodyA, bodyB, shapeA, shapeB, equation) {
+        if (bodyA) {
+            var health = this.healthBar.width - 10;
+            if (health > 0) {
+                this.healthBar.width = health;
+            } else {
+                this.healthBar.destroy();
+                game.paused = true;
+            }
+        }
     },
 
     movePlayer: function() {
