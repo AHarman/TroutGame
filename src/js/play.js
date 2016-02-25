@@ -10,6 +10,8 @@ var playState = {
         game.load.image("river", "assets/images/River-Obstacles.jpg");
         game.load.image("ui-intro-1", "assets/images/ui/UI-Intro-1.png")
         game.load.image("ui-intro-2", "assets/images/ui/UI-Intro-2.png")
+        game.load.image("healthFrame", "assets/images/ui/UI-Health-Bar.png");
+        game.load.image("healthBar", "assets/images/ui/Health.png")
         game.load.spritesheet("tilly", "assets/images/Tilly-Spritesheet.png", 600, 229, 10);
         game.load.physics("physics-data", "assets/physics.json");
     ;},
@@ -20,6 +22,12 @@ var playState = {
 
         this.createBackground();
         this.player = this.createPlayer();
+
+        var healthFrame = game.add.image(10, 10, "healthFrame");
+        healthFrame.fixedToCamera = true;
+        this.healthBar = game.add.image(5, 5, "healthBar");
+        healthFrame.addChild(this.healthBar);
+
         this.createUI("ui-intro-1");
         this.createUI("ui-intro-2");
 
@@ -103,10 +111,23 @@ var playState = {
         player.body.loadPolygon("physics-data", "Tilly-Sprite");
         player.body.fixedRotation = true;
 
+        player.body.onBeginContact.add(this.playerCollision.bind(this));
+
         var swim = player.animations.add("swim");
         player.animations.play("swim", 5, true);
         
         return player
+    },
+
+    playerCollision: function(bodyA, bodyB, shapeA, shapeB, equation) {
+        if (bodyA) {
+            var health = this.healthBar.width - 10;
+            if (health > 0) {
+                this.healthBar.width = health;
+            } else {
+                game.state.start("gameOver");
+            }
+        }
     },
 
     movePlayer: function() {
