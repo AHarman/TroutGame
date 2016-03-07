@@ -9,7 +9,7 @@ var playState = {
     },
 
     preload: function() {
-        game.load.image("river", "assets/images/River-Obstacles.jpg");
+        game.load.image("river", "assets/images/River-Improvements.jpg");
         game.load.image("ui-intro-1", "assets/images/ui/UI-Intro-1.png")
         game.load.image("ui-intro-2", "assets/images/ui/UI-Intro-2.png")
         game.load.image("healthFrame", "assets/images/ui/UI-Health-Bar.png");
