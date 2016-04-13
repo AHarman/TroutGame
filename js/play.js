@@ -11,6 +11,10 @@ var PlayState = {
     preload: function() {
         game.load.image("river",          "assets/images/River-Improvements.jpg");
         game.load.image("weir-1",         "assets/images/weir-1.jpg");
+        game.load.image("weir-2",         "assets/images/weir-2.jpg");
+        game.load.image("mud-1",          "assets/images/mud-1.jpg");
+        game.load.image("mud-2",          "assets/images/mud-1.jpg");
+        game.load.image("pipe",           "assets/images/pipe.jpg");
         game.load.image("ui-intro-1",     "assets/images/ui/UI-Intro-1.png");
         game.load.image("ui-intro-2",     "assets/images/ui/UI-Intro-2.png");
         game.load.image("healthFrame",    "assets/images/ui/UI-Health-Bar.png");
@@ -25,7 +29,11 @@ var PlayState = {
 
         this.createBackground();
         this.weir1 = new PlayState.Weir(5000, 0, 1);
-        // this.weir2 = new PlayState.Weir(9160, 0, 1);
+        // this.weir2 = new PlayState.Weir(7300, 0, 2);
+
+        // Mud 1 = 8950
+        // Mud 2 = 11000
+        // Pipe = 18775
 
         this.player = this.createPlayer();
 
@@ -44,13 +52,6 @@ var PlayState = {
     update: function() {
         if (this.inMenu == 0) {
             this.movePlayer();
-        }
-        if (this.cursors.left.isDown) {
-            if (this.weir1.image.alpha == 1) {
-                this.weir1.image.alpha = 0;
-            } else {
-                this.weir1.image.alpha = 1;
-            }
         }
     },
 
@@ -78,7 +79,7 @@ var PlayState = {
 
     Weir: function(x, y, number) {
         this.image = game.add.image(x, y, "weir-" + number);
-        this.image.width = 450;
+        this.image.width = 400;
         this.image.height = 720;
         // game.physics.p2.enable(this.sprite);
         // this.sprite.body.static = true;

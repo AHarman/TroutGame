@@ -2,9 +2,9 @@
 
 // Used for development, set to false for actual use
 var debug = false;
-var fullSize = true;
+var fullSize = false;
 
-var game = new Phaser.Game(24588, 720, Phaser.CANVAS, "gameContainer");
+var game = new Phaser.Game(1366, 720, Phaser.CANVAS, "gameContainer");
 
 game.state.add('start', StartState);
 game.state.add('play', PlayState);
