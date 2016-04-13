@@ -13,7 +13,7 @@ var PlayState = {
         game.load.image("weir-1",         "assets/images/weir-1.jpg");
         game.load.image("weir-2",         "assets/images/weir-2.jpg");
         game.load.image("mud-1",          "assets/images/mud-1.jpg");
-        game.load.image("mud-2",          "assets/images/mud-1.jpg");
+        game.load.image("mud-2",          "assets/images/mud-2.jpg");
         game.load.image("pipe",           "assets/images/pipe.jpg");
         game.load.image("ui-intro-1",     "assets/images/ui/UI-Intro-1.png");
         game.load.image("ui-intro-2",     "assets/images/ui/UI-Intro-2.png");
@@ -26,19 +26,28 @@ var PlayState = {
     create: function() {
         game.world.setBounds(0, 0, 24588, 720);
         game.physics.startSystem(Phaser.Physics.P2JS);
+        game.physics.p2.setImpactEvents(true);
 
         var bgCollisionGroup = game.physics.p2.createCollisionGroup();
         var fishCollisionGroup = game.physics.p2.createCollisionGroup();
         var overlapObstaclesCollisionGroup = game.physics.p2.createCollisionGroup();
         var blockObstaclesCollisionGroup = game.physics.p2.createCollisionGroup();
+        game.physics.p2.updateBoundsCollisionGroup();
 
-        this.bgObstacles = this.createBackground();
-        this.weir1 = new PlayState.Weir(5000, 0, 1);
-        // this.weir2 = new PlayState.Weir(7300, 0, 2);
-        // this.mud1 = new PlayState.Mud( 8950, 0, 1);
-        // this.mud1 = new PlayState.Mud(11000, 0, 2);
-        // this.pipe = new PlayState.Mud(18775, 0);
-        this.player = this.createPlayer();
+
+        this.bgObstacles = this.createBackground(bgCollisionGroup);
+        this.weir1 = new PlayState.Weir(5000, 0, blockObstaclesCollisionGroup, 1);
+        this.weir2 = new PlayState.Weir(7300, 0, blockObstaclesCollisionGroup, 2);
+        this.mud1 = new PlayState.Mud( 8940, 0, overlapObstaclesCollisionGroup, 1);
+        this.mud1 = new PlayState.Mud(10820, 0, overlapObstaclesCollisionGroup, 2);
+        this.pipe = new PlayState.Pipe(18775, 0);
+        this.player = this.createPlayer(fishCollisionGroup);
+
+        this.player.body.collides(bgCollisionGroup, this.playerCollisionBG, this);
+        this.player.body.collides(blockObstaclesCollisionGroup, this.playerCollisionObs, this);
+        this.bgObstacles.body.collides(fishCollisionGroup);
+        this.weir1.sprite.body.collides(fishCollisionGroup);
+        this.weir2.sprite.body.collides(fishCollisionGroup);
 
         var healthFrame = game.add.image(10, 10, "healthFrame");
         healthFrame.fixedToCamera = true;
@@ -80,48 +89,42 @@ var PlayState = {
         this.inMenu++;
     },
 
-    Weir: function(x, y, number) {
-        this.sprite = game.add.sprite(x, y, "weir-" + number);
+    Weir: function(x, y, collisionGroup, number) {
+        this.image = game.add.image(x, y, "weir-" + number);
+        this.sprite = game.add.sprite(x, y);
 
         game.physics.p2.enable(this.sprite, debug);
+        this.sprite.body.clearShapes();
+        this.sprite.body.loadPolygon("physics-data", "Weir-" + number);
         this.sprite.body.static = true;
+        this.sprite.body.setCollisionGroup(collisionGroup);
+
     },
 
-    Mud: function(x, y, number) {
-        /*this.image = game.add.sprite(x, y, "weir-" + number);
+    Mud: function(x, y, collisionGroup, number) {
+        this.image = game.add.image(x, y, "mud-" + number);
+        this.sprite = game.add.sprite(x, y);
+
         game.physics.p2.enable(this.sprite, debug);
-        this.sprite.body.static = true;*/
+        this.sprite.body.clearShapes();
+        this.sprite.body.loadPolygon("physics-data", "Mud-" + number);
+        this.sprite.body.static = true;
+        this.sprite.body.setCollisionGroup(collisionGroup);
     },
 
     Pipe: function(x, y) {
-
+        this.image = game.add.image(x, y, "pipe")
     },
 
-    createBackground: function() {
+    createBackground: function(collisionGroup) {
         var bg = game.add.image(0,0, "river");
-        var bgObstacles = game.add.sprite(12, 15);
+        var bgObstacles = game.add.sprite(0, 0);
         game.physics.p2.enable(bgObstacles, debug);
         bgObstacles.body.clearShapes();
-        bgObstacles.body.loadPolygon("physics-data", "river-collision-rock-1");
-        bgObstacles.body.loadPolygon("physics-data", "river-collision-rock-2");
-        bgObstacles.body.loadPolygon("physics-data", "river-collision-rock-3");
-        bgObstacles.body.loadPolygon("physics-data", "river-collision-rock-4");
-        bgObstacles.body.loadPolygon("physics-data", "river-collision-rock-5");
-        bgObstacles.body.loadPolygon("physics-data", "river-collision-rock-6");
-        bgObstacles.body.loadPolygon("physics-data", "river-collision-rock-7");
-        bgObstacles.body.loadPolygon("physics-data", "river-collision-rock-8");
-        bgObstacles.body.loadPolygon("physics-data", "river-collision-rock-9");
-        bgObstacles.body.loadPolygon("physics-data", "river-collision-rock-10");
-        bgObstacles.body.loadPolygon("physics-data", "river-collision-rock-11");
-        bgObstacles.body.loadPolygon("physics-data", "river-collision-rock-12");
-        bgObstacles.body.loadPolygon("physics-data", "river-collision-top");
-        bgObstacles.body.loadPolygon("physics-data", "river-collision-bot-1");
-        bgObstacles.body.loadPolygon("physics-data", "river-collision-bot-2");
-        bgObstacles.body.loadPolygon("physics-data", "river-collision-bot-3");
-        bgObstacles.body.loadPolygon("physics-data", "river-collision-bot-4");
-        bgObstacles.body.loadPolygon("physics-data", "river-collision-bot-5");
-        bgObstacles.body.loadPolygon("physics-data", "river-collision-bot-6");
+        bgObstacles.body.loadPolygon("physics-data", "River-Improvements");
+
         bgObstacles.body.static = true;
+        bgObstacles.body.setCollisionGroup(collisionGroup);
         return bgObstacles;
     },
 
@@ -134,8 +137,8 @@ var PlayState = {
         }
     },
 
-    createPlayer: function() {
-        var tillyScale = 0.5;
+    createPlayer: function(collisionGroup) {
+        var tillyScale = 0.3;
         var player = game.add.sprite(200, game.world.height - 150, "tilly");
         player.scale.set(tillyScale);
         player.alpha = 0.8;
@@ -145,8 +148,9 @@ var PlayState = {
         player.body.clearShapes();
         player.body.loadPolygon("physics-data", "Tilly-Sprite");
         player.body.fixedRotation = true;
+        player.body.setCollisionGroup(collisionGroup);
 
-        player.body.onBeginContact.add(this.playerCollision.bind(this));
+        //player.body.onBeginContact.add(this.playerCollision.bind(this));
 
         var swim = player.animations.add("swim");
         player.animations.play("swim", 5, true);
@@ -154,14 +158,20 @@ var PlayState = {
         return player
     },
 
-    playerCollision: function(bodyA, bodyB, shapeA, shapeB, equation) {
-        if (bodyA) {
-            var health = this.healthBar.width - 10;
-            if (health > 0) {
-                this.healthBar.width = health;
-            } else {
-                game.state.start("gameOver");
-            }
+    playerCollisionBG: function(bodyA, bodyB, shapeA, shapeB, equation) {
+        this.playerTakeDamage(5);
+    },
+
+    playerCollisionObs: function(bodyA, bodyB, shapeA, shapeB, equation) {
+        this.playerTakeDamage(20);
+    },
+
+    playerTakeDamage: function(amount) {
+        var health = this.healthBar.width - amount;
+        if (health > 0) {
+            this.healthBar.width = health;
+        } else {
+            game.state.start("gameOver");
         }
     },
 
@@ -174,7 +184,7 @@ var PlayState = {
            this.player.body.velocity.x = 30;
 
        if (this.cursors.right.isDown)
-           this.player.body.velocity.x = 300;
+           this.player.body.velocity.x = 500;
        else if (this.player.position.x - game.camera.x > 100)
            game.camera.x += 1;
 
