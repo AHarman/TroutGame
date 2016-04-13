@@ -87,6 +87,16 @@ var PlayState = {
         this.sprite.body.static = true;
     },
 
+    Mud: function(x, y, number) {
+        /*this.image = game.add.sprite(x, y, "weir-" + number);
+        game.physics.p2.enable(this.sprite, debug);
+        this.sprite.body.static = true;*/
+    },
+
+    Pipe: function(x, y) {
+
+    },
+
     createBackground: function() {
         var bg = game.add.image(0,0, "river");
         var bgObstacles = game.add.sprite(12, 15);
