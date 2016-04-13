@@ -27,6 +27,7 @@ var PlayState = {
         game.world.setBounds(0, 0, 24588, 720);
         game.physics.startSystem(Phaser.Physics.P2JS);
         game.physics.p2.setImpactEvents(true);
+        game.physics.p2.setPostBroadphaseCallback(this.overlapInterrupt, this);
 
         var bgCollisionGroup = game.physics.p2.createCollisionGroup();
         var fishCollisionGroup = game.physics.p2.createCollisionGroup();
@@ -36,8 +37,8 @@ var PlayState = {
 
 
         this.bgObstacles = this.createBackground(bgCollisionGroup);
-        this.weir1 = new PlayState.Weir(5000, 0, blockObstaclesCollisionGroup, 1);
-        this.weir2 = new PlayState.Weir(7300, 0, blockObstaclesCollisionGroup, 2);
+        //this.weir1 = new PlayState.Weir(5000, 0, blockObstaclesCollisionGroup, 1);
+        //this.weir2 = new PlayState.Weir(7300, 0, blockObstaclesCollisionGroup, 2);
         this.mud1 = new PlayState.Mud( 8940, 0, overlapObstaclesCollisionGroup, 1);
         this.mud1 = new PlayState.Mud(10820, 0, overlapObstaclesCollisionGroup, 2);
         this.pipe = new PlayState.Pipe(18775, 0);
@@ -46,8 +47,8 @@ var PlayState = {
         this.player.body.collides(bgCollisionGroup, this.playerCollisionBG, this);
         this.player.body.collides(blockObstaclesCollisionGroup, this.playerCollisionObs, this);
         this.bgObstacles.body.collides(fishCollisionGroup);
-        this.weir1.sprite.body.collides(fishCollisionGroup);
-        this.weir2.sprite.body.collides(fishCollisionGroup);
+        //this.weir1.sprite.body.collides(fishCollisionGroup);
+        //this.weir2.sprite.body.collides(fishCollisionGroup);
 
         var healthFrame = game.add.image(10, 10, "healthFrame");
         healthFrame.fixedToCamera = true;
@@ -65,6 +66,19 @@ var PlayState = {
         if (this.inMenu == 0) {
             this.movePlayer();
         }
+    },
+
+    overlapInterrupt: function(body1, body2) {
+        if (body1.sprite.name === "fish") {
+            if (body2.sprite.name == "mud") {
+                console.log("mud");
+            }
+        } else if (body1.sprite.name == "mud") {
+            if (body2.sprite.name == "fish") {
+                console.log("mud");
+            }
+        }
+        return true;
     },
 
     createUI: function(key, callback, args) {
@@ -98,7 +112,7 @@ var PlayState = {
         this.sprite.body.loadPolygon("physics-data", "Weir-" + number);
         this.sprite.body.static = true;
         this.sprite.body.setCollisionGroup(collisionGroup);
-
+        //this.sprite.name = "weir";
     },
 
     Mud: function(x, y, collisionGroup, number) {
@@ -110,6 +124,7 @@ var PlayState = {
         this.sprite.body.loadPolygon("physics-data", "Mud-" + number);
         this.sprite.body.static = true;
         this.sprite.body.setCollisionGroup(collisionGroup);
+        this.sprite.name = "mud";
     },
 
     Pipe: function(x, y) {
@@ -125,6 +140,7 @@ var PlayState = {
 
         bgObstacles.body.static = true;
         bgObstacles.body.setCollisionGroup(collisionGroup);
+        //bgObstacles.name = "bg";
         return bgObstacles;
     },
 
@@ -154,7 +170,7 @@ var PlayState = {
 
         var swim = player.animations.add("swim");
         player.animations.play("swim", 5, true);
-        
+        player.name = "fish";
         return player
     },
 
