@@ -27,14 +27,17 @@ var PlayState = {
         game.world.setBounds(0, 0, 24588, 720);
         game.physics.startSystem(Phaser.Physics.P2JS);
 
-        this.createBackground();
+        var bgCollisionGroup = game.physics.p2.createCollisionGroup();
+        var fishCollisionGroup = game.physics.p2.createCollisionGroup();
+        var overlapObstaclesCollisionGroup = game.physics.p2.createCollisionGroup();
+        var blockObstaclesCollisionGroup = game.physics.p2.createCollisionGroup();
+
+        this.bgObstacles = this.createBackground();
         this.weir1 = new PlayState.Weir(5000, 0, 1);
         // this.weir2 = new PlayState.Weir(7300, 0, 2);
-
-        // Mud 1 = 8950
-        // Mud 2 = 11000
-        // Pipe = 18775
-
+        // this.mud1 = new PlayState.Mud( 8950, 0, 1);
+        // this.mud1 = new PlayState.Mud(11000, 0, 2);
+        // this.pipe = new PlayState.Mud(18775, 0);
         this.player = this.createPlayer();
 
         var healthFrame = game.add.image(10, 10, "healthFrame");
@@ -73,16 +76,15 @@ var PlayState = {
         button.height = 62;
         button.input.useHandCursor = true;
 
-        uiImage.addChild(button)
+        uiImage.addChild(button);
         this.inMenu++;
     },
 
     Weir: function(x, y, number) {
-        this.image = game.add.image(x, y, "weir-" + number);
-        this.image.width = 400;
-        this.image.height = 720;
-        // game.physics.p2.enable(this.sprite);
-        // this.sprite.body.static = true;
+        this.sprite = game.add.sprite(x, y, "weir-" + number);
+
+        game.physics.p2.enable(this.sprite, debug);
+        this.sprite.body.static = true;
     },
 
     createBackground: function() {
@@ -123,10 +125,10 @@ var PlayState = {
     },
 
     createPlayer: function() {
-        var tillyScale = 0.3;
+        var tillyScale = 0.5;
         var player = game.add.sprite(200, game.world.height - 150, "tilly");
         player.scale.set(tillyScale);
-        player.alpha = 0.9;
+        player.alpha = 0.8;
 
         game.physics.p2.enable(player, debug);
         this.resizePolygons("physics-data", "Tilly-Sprite", tillyScale);
