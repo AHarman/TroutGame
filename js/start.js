@@ -1,9 +1,11 @@
 "use strict";
 
-var startState = {
+var StartState = {
     init: function() {
         if (!fullSize) {
             game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+        } else {
+            game.scale.scaleMode = Phaser.ScaleManager.NO_SCALE;
         }
         game.renderer.renderSession.roundPixels = true;
     },

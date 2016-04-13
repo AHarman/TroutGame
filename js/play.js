@@ -1,6 +1,6 @@
 "use strict";
 
-var playState = {
+var PlayState = {
 
     // Increment this for every open menu
     inMenu: 0,
@@ -9,12 +9,13 @@ var playState = {
     },
 
     preload: function() {
-        game.load.image("river", "assets/images/River-Improvements.jpg");
-        game.load.image("ui-intro-1", "assets/images/ui/UI-Intro-1.png")
-        game.load.image("ui-intro-2", "assets/images/ui/UI-Intro-2.png")
-        game.load.image("healthFrame", "assets/images/ui/UI-Health-Bar.png");
-        game.load.image("healthBar", "assets/images/ui/Health.png")
-        game.load.spritesheet("tilly", "assets/images/Tilly-Spritesheet.png", 600, 229, 10);
+        game.load.image("river",          "assets/images/River-Improvements.jpg");
+        game.load.image("weir-1",         "assets/images/weir-1.jpg");
+        game.load.image("ui-intro-1",     "assets/images/ui/UI-Intro-1.png");
+        game.load.image("ui-intro-2",     "assets/images/ui/UI-Intro-2.png");
+        game.load.image("healthFrame",    "assets/images/ui/UI-Health-Bar.png");
+        game.load.image("healthBar",      "assets/images/ui/Health.png");
+        game.load.spritesheet("tilly",    "assets/images/Tilly-Spritesheet.png", 600, 229, 10);
         game.load.physics("physics-data", "assets/physics.json");
     ;},
 
@@ -23,6 +24,9 @@ var playState = {
         game.physics.startSystem(Phaser.Physics.P2JS);
 
         this.createBackground();
+        this.weir1 = new PlayState.Weir(5000, 0, 1);
+        // this.weir2 = new PlayState.Weir(9160, 0, 1);
+
         this.player = this.createPlayer();
 
         var healthFrame = game.add.image(10, 10, "healthFrame");
@@ -40,6 +44,13 @@ var playState = {
     update: function() {
         if (this.inMenu == 0) {
             this.movePlayer();
+        }
+        if (this.cursors.left.isDown) {
+            if (this.weir1.image.alpha == 1) {
+                this.weir1.image.alpha = 0;
+            } else {
+                this.weir1.image.alpha = 1;
+            }
         }
     },
 
@@ -63,6 +74,14 @@ var playState = {
 
         uiImage.addChild(button)
         this.inMenu++;
+    },
+
+    Weir: function(x, y, number) {
+        this.image = game.add.image(x, y, "weir-" + number);
+        this.image.width = 450;
+        this.image.height = 720;
+        // game.physics.p2.enable(this.sprite);
+        // this.sprite.body.static = true;
     },
 
     createBackground: function() {
@@ -142,7 +161,7 @@ var playState = {
            this.player.body.velocity.x = 30;
 
        if (this.cursors.right.isDown)
-           this.player.body.velocity.x = 150;
+           this.player.body.velocity.x = 300;
        else if (this.player.position.x - game.camera.x > 100)
            game.camera.x += 1;
 
@@ -152,7 +171,7 @@ var playState = {
            this.player.body.velocity.y = 150;
 
        this.player.animations.currentAnim.speed = Math.max( 5,
-                                                       Math.abs(this.player.body.velocity.x / 10),
+                                                       Math.abs(this.player.body.velocity.x / 20),
                                                        Math.abs(this.player.body.velocity.y / 10));
    }
 }
