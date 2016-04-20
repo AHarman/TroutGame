@@ -44,8 +44,8 @@ var PlayState = {
         this.pipe = new PlayState.Pipe(18775, 0);
         this.player = new PlayState.Player(200, game.world.height - 150, fishCollisionGroup);
 
-        this.player.sprite.body.collides(bgCollisionGroup, this.playerCollisionBG, this);
-        this.player.sprite.body.collides(blockObstaclesCollisionGroup, this.playerCollisionObs, this);
+        this.player.sprite.body.collides(bgCollisionGroup, this.player.collideBG, this.player);
+        this.player.sprite.body.collides(blockObstaclesCollisionGroup, this.player.collideObs, this.player);
         this.bgObstacles.body.collides(fishCollisionGroup);
         //this.weir1.sprite.body.collides(fishCollisionGroup);
         //this.weir2.sprite.body.collides(fishCollisionGroup);
@@ -64,18 +64,20 @@ var PlayState = {
 
     update: function() {
         if (this.inMenu == 0) {
-            this.movePlayer();
+            this.player.move();
         }
     },
 
     overlapInterrupt: function(body1, body2) {
         if (body1.sprite.name === "fish") {
             if (body2.sprite.name == "mud") {
-                this.playerOverlapMud();
+                this.player.collideMud();
+                return false;
             }
         } else if (body1.sprite.name == "mud") {
             if (body2.sprite.name == "fish") {
-                this.playerOverlapMud();
+                this.player.collideMud();
+                return false;
             }
         }
         return true;
@@ -144,15 +146,6 @@ var PlayState = {
         return bgObstacles;
     },
 
-    resizePolygons: function(key, object, scale) {
-        var polygons = game.cache.getPhysicsData(key, object);
-        for (var i = 0; i < polygons.length; i++) {
-            for (var j = 0; j < polygons[i]["shape"].length; j++) {
-                polygons[i].shape[j] *= scale;
-            }
-        }
-    },
-
     Player: function(x, y, collisionGroup) {
         var tillyScale = 0.3;
         this.sprite = game.add.sprite(x, y, "tilly");
@@ -171,66 +164,67 @@ var PlayState = {
         this.sprite.name = "fish";
 
         this.immune = false;
-    },
 
-    playerCollisionBG: function(bodyA, bodyB, shapeA, shapeB, equation) {
-        this.playerTakeDamage(5);
-    },
+        this.move = function() {
+            this.sprite.body.velocity.y = 0;
 
-    playerCollisionObs: function(bodyA, bodyB, shapeA, shapeB, equation) {
-        this.playerTakeDamage(20);
-    },
+            if (this.sprite.body.velocity.x > 30)
+                this.sprite.body.velocity.x -= 4;
+            else
+                this.sprite.body.velocity.x = 30;
 
-    playerOverlapMud: function(body) {
-        this.playerTakeDamage(10);
-    },
+            if (PlayState.cursors.right.isDown)
+                this.sprite.body.velocity.x = 500;
+            else if (this.sprite.position.x - game.camera.x > 100)
+                game.camera.x += 1;
 
-    playerTakeDamage: function(amount) {
-        if (!this.player.immune)
-        {
-            console.log("takedamage");
-            var health = this.healthBar.width - amount;
-            if (health > 0) {
-                this.healthBar.width = health;
-                this.playerTempImmune();
-            } else {
-                game.state.start("gameOver");
+            if (PlayState.cursors.up.isDown)
+                this.sprite.body.velocity.y = -150;
+            else if (PlayState.cursors.down.isDown)
+                this.sprite.body.velocity.y = 150;
+
+            this.sprite.animations.currentAnim.speed = Math.max( 5,
+                                                        Math.abs(this.sprite.body.velocity.x / 20),
+                                                        Math.abs(this.sprite.body.velocity.y / 10));
+        };
+
+        this.collideBG  = function(bodyA, bodyB, shapeA, shapeB, equation) {this.takeDamage( 5);console.log("bg");};
+        this.collideObs = function(bodyA, bodyB, shapeA, shapeB, equation) {this.takeDamage(20);console.log("obs");};
+        this.collideMud = function(body) {this.takeDamage(10);console.log("mud");};
+
+        this.takeDamage = function(amount) {
+            if (!this.immune)
+            {
+                console.log("takedamage");
+                var health = PlayState.healthBar.width - amount;
+                if (health > 0) {
+                    PlayState.healthBar.width = health;
+                    this.tempImmune();
+                } else {
+                    game.state.start("gameOver");
+                }
+            }
+        };
+        
+        this.tempImmune = function() {
+            this.immune = true;
+            this.sprite.alpha = 0;
+
+            game.time.events.add(1000, function(){this.immune=false;}, this);
+
+            // Flip between visibile and invisible
+            game.time.events.repeat(250, 3, 
+                function(){this.sprite.alpha = this.sprite.alpha == 0 ? 0.8 : 0;}, this);
+        };
+    },
+    
+    resizePolygons: function(key, object, scale) {
+        var polygons = game.cache.getPhysicsData(key, object);
+        for (var i = 0; i < polygons.length; i++) {
+            for (var j = 0; j < polygons[i]["shape"].length; j++) {
+                polygons[i].shape[j] *= scale;
             }
         }
     },
-
-    playerTempImmune: function() {
-        this.player.immune = true;
-        this.player.sprite.alpha = 0;
-
-        game.time.events.add(1000, function(){this.player.immune=false;}, this);
-
-        // Flip between visibile and invisible
-        game.time.events.repeat(250, 3, 
-            function(){this.player.sprite.alpha = this.player.sprite.alpha == 0 ? 0.8 : 0;}, this);
-    },
-
-    movePlayer: function() {
-       this.player.sprite.body.velocity.y = 0;
-
-       if (this.player.sprite.body.velocity.x > 30)
-           this.player.sprite.body.velocity.x -= 4;
-       else
-           this.player.sprite.body.velocity.x = 30;
-
-       if (this.cursors.right.isDown)
-           this.player.sprite.body.velocity.x = 500;
-       else if (this.player.sprite.position.x - game.camera.x > 100)
-           game.camera.x += 1;
-
-       if (this.cursors.up.isDown)
-           this.player.sprite.body.velocity.y = -150;
-       else if (this.cursors.down.isDown)
-           this.player.sprite.body.velocity.y = 150;
-
-       this.player.sprite.animations.currentAnim.speed = Math.max( 5,
-                                                            Math.abs(this.player.sprite.body.velocity.x / 20),
-                                                            Math.abs(this.player.sprite.body.velocity.y / 10));
-   }
 }
 
