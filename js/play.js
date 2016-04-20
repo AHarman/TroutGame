@@ -71,11 +71,11 @@ var PlayState = {
     overlapInterrupt: function(body1, body2) {
         if (body1.sprite.name === "fish") {
             if (body2.sprite.name == "mud") {
-                console.log("mud");
+                this.playerOverlapMud();
             }
         } else if (body1.sprite.name == "mud") {
             if (body2.sprite.name == "fish") {
-                console.log("mud");
+                this.playerOverlapMud();
             }
         }
         return true;
@@ -180,6 +180,10 @@ var PlayState = {
 
     playerCollisionObs: function(bodyA, bodyB, shapeA, shapeB, equation) {
         this.playerTakeDamage(20);
+    },
+
+    playerOverlapMud: function(body) {
+        this.playerTakeDamage(0.4);
     },
 
     playerTakeDamage: function(amount) {
