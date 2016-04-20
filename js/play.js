@@ -164,28 +164,44 @@ var PlayState = {
         this.sprite.name = "fish";
 
         this.immune = false;
+        this.jumping = false;
+
+        this.jump = function() {
+            this.jumping = true;
+            var jumpUp   = game.add.tween(this.sprite.scale).to({x: 0.4, y: 0.4}, 500, "Linear");
+            var fallDown = game.add.tween(this.sprite.scale).to({x: 0.3, y: 0.3}, 500, "Linear");
+            fallDown.onComplete.add(function(){this.jumping=false;}, this);
+            jumpUp.chain(fallDown);
+            jumpUp.start();
+        };
 
         this.move = function() {
-            this.sprite.body.velocity.y = 0;
+            console.log(this.jumping);
+            if (game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR) && !this.jumping) {
+                this.jump();
+                console.log("SPAAAAAAAAACE");
+            } else if (!this.jumping) {
+                this.sprite.body.velocity.y = 0;
 
-            if (this.sprite.body.velocity.x > 30)
-                this.sprite.body.velocity.x -= 4;
-            else
-                this.sprite.body.velocity.x = 30;
+                if (this.sprite.body.velocity.x > 30)
+                    this.sprite.body.velocity.x -= 4;
+                else
+                    this.sprite.body.velocity.x = 30;
 
-            if (PlayState.cursors.right.isDown)
-                this.sprite.body.velocity.x = 500;
-            else if (this.sprite.position.x - game.camera.x > 100)
-                game.camera.x += 1;
+                if (PlayState.cursors.right.isDown)
+                    this.sprite.body.velocity.x = 500;
+                else if (this.sprite.position.x - game.camera.x > 100)
+                    game.camera.x += 1;
 
-            if (PlayState.cursors.up.isDown)
-                this.sprite.body.velocity.y = -150;
-            else if (PlayState.cursors.down.isDown)
-                this.sprite.body.velocity.y = 150;
+                if (PlayState.cursors.up.isDown)
+                    this.sprite.body.velocity.y = -150;
+                else if (PlayState.cursors.down.isDown)
+                    this.sprite.body.velocity.y = 150;
 
-            this.sprite.animations.currentAnim.speed = Math.max( 5,
-                                                        Math.abs(this.sprite.body.velocity.x / 20),
-                                                        Math.abs(this.sprite.body.velocity.y / 10));
+                this.sprite.animations.currentAnim.speed = Math.max( 5,
+                                                            Math.abs(this.sprite.body.velocity.x / 20),
+                                                            Math.abs(this.sprite.body.velocity.y / 10));
+            }
         };
 
         this.collideBG  = function(bodyA, bodyB, shapeA, shapeB, equation) {this.takeDamage( 5);console.log("bg");};
