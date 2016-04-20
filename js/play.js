@@ -40,12 +40,12 @@ var PlayState = {
         //this.weir1 = new PlayState.Weir(5000, 0, blockObstaclesCollisionGroup, 1);
         //this.weir2 = new PlayState.Weir(7300, 0, blockObstaclesCollisionGroup, 2);
         this.mud1 = new PlayState.Mud( 8940, 0, overlapObstaclesCollisionGroup, 1);
-        this.mud1 = new PlayState.Mud(10820, 0, overlapObstaclesCollisionGroup, 2);
+        this.mud2 = new PlayState.Mud(10820, 0, overlapObstaclesCollisionGroup, 2);
         this.pipe = new PlayState.Pipe(18775, 0);
-        this.player = this.createPlayer(fishCollisionGroup);
+        this.player = new PlayState.Player(200, game.world.height - 150, fishCollisionGroup);
 
-        this.player.body.collides(bgCollisionGroup, this.playerCollisionBG, this);
-        this.player.body.collides(blockObstaclesCollisionGroup, this.playerCollisionObs, this);
+        this.player.sprite.body.collides(bgCollisionGroup, this.playerCollisionBG, this);
+        this.player.sprite.body.collides(blockObstaclesCollisionGroup, this.playerCollisionObs, this);
         this.bgObstacles.body.collides(fishCollisionGroup);
         //this.weir1.sprite.body.collides(fishCollisionGroup);
         //this.weir2.sprite.body.collides(fishCollisionGroup);
@@ -58,7 +58,7 @@ var PlayState = {
         this.createUI("ui-intro-1", this.createUI, ["ui-intro-2"]);
 
         this.cursors = game.input.keyboard.createCursorKeys();
-        game.camera.follow(this.player);
+        game.camera.follow(this.player.sprite);
         game.camera.deadzone = new Phaser.Rectangle(100, 0, 200, 720);
     },
 
@@ -153,25 +153,24 @@ var PlayState = {
         }
     },
 
-    createPlayer: function(collisionGroup) {
+    Player: function(x, y, collisionGroup) {
         var tillyScale = 0.3;
-        var player = game.add.sprite(200, game.world.height - 150, "tilly");
-        player.scale.set(tillyScale);
-        player.alpha = 0.8;
+        this.sprite = game.add.sprite(x, y, "tilly");
+        this.sprite.scale.set(tillyScale);
+        this.sprite.alpha = 0.8;
 
-        game.physics.p2.enable(player, debug);
-        this.resizePolygons("physics-data", "Tilly-Sprite", tillyScale);
-        player.body.clearShapes();
-        player.body.loadPolygon("physics-data", "Tilly-Sprite");
-        player.body.fixedRotation = true;
-        player.body.setCollisionGroup(collisionGroup);
+        game.physics.p2.enable(this.sprite, debug);
+        PlayState.resizePolygons("physics-data", "Tilly-Sprite", tillyScale);
+        this.sprite.body.clearShapes();
+        this.sprite.body.loadPolygon("physics-data", "Tilly-Sprite");
+        this.sprite.body.fixedRotation = true;
+        this.sprite.body.setCollisionGroup(collisionGroup);
 
-        //player.body.onBeginContact.add(this.playerCollision.bind(this));
+        var swim = this.sprite.animations.add("swim");
+        this.sprite.animations.play("swim", 5, true);
+        this.sprite.name = "fish";
 
-        var swim = player.animations.add("swim");
-        player.animations.play("swim", 5, true);
-        player.name = "fish";
-        return player
+        this.immune = false;
     },
 
     playerCollisionBG: function(bodyA, bodyB, shapeA, shapeB, equation) {
@@ -183,39 +182,55 @@ var PlayState = {
     },
 
     playerOverlapMud: function(body) {
-        this.playerTakeDamage(0.4);
+        this.playerTakeDamage(10);
     },
 
     playerTakeDamage: function(amount) {
-        var health = this.healthBar.width - amount;
-        if (health > 0) {
-            this.healthBar.width = health;
-        } else {
-            game.state.start("gameOver");
+        if (!this.player.immune)
+        {
+            console.log("takedamage");
+            var health = this.healthBar.width - amount;
+            if (health > 0) {
+                this.healthBar.width = health;
+                this.playerTempImmune();
+            } else {
+                game.state.start("gameOver");
+            }
         }
     },
 
-    movePlayer: function() {
-       this.player.body.velocity.y = 0;
+    playerTempImmune: function() {
+        this.player.immune = true;
+        this.player.sprite.alpha = 0;
 
-       if (this.player.body.velocity.x > 30)
-           this.player.body.velocity.x -= 4;
+        game.time.events.add(1000, function(){this.player.immune=false;}, this);
+
+        // Flip between visibile and invisible
+        game.time.events.repeat(250, 3, 
+            function(){this.player.sprite.alpha = this.player.sprite.alpha == 0 ? 0.8 : 0;}, this);
+    },
+
+    movePlayer: function() {
+       this.player.sprite.body.velocity.y = 0;
+
+       if (this.player.sprite.body.velocity.x > 30)
+           this.player.sprite.body.velocity.x -= 4;
        else
-           this.player.body.velocity.x = 30;
+           this.player.sprite.body.velocity.x = 30;
 
        if (this.cursors.right.isDown)
-           this.player.body.velocity.x = 500;
-       else if (this.player.position.x - game.camera.x > 100)
+           this.player.sprite.body.velocity.x = 500;
+       else if (this.player.sprite.position.x - game.camera.x > 100)
            game.camera.x += 1;
 
        if (this.cursors.up.isDown)
-           this.player.body.velocity.y = -150;
+           this.player.sprite.body.velocity.y = -150;
        else if (this.cursors.down.isDown)
-           this.player.body.velocity.y = 150;
+           this.player.sprite.body.velocity.y = 150;
 
-       this.player.animations.currentAnim.speed = Math.max( 5,
-                                                       Math.abs(this.player.body.velocity.x / 20),
-                                                       Math.abs(this.player.body.velocity.y / 10));
+       this.player.sprite.animations.currentAnim.speed = Math.max( 5,
+                                                            Math.abs(this.player.sprite.body.velocity.x / 20),
+                                                            Math.abs(this.player.sprite.body.velocity.y / 10));
    }
 }
 
