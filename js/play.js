@@ -29,14 +29,15 @@ var PlayState = {
         game.physics.p2.setImpactEvents(true);
         game.physics.p2.setPostBroadphaseCallback(this.overlapInterrupt, this);
 
-        this.bgCollisionGroup = game.physics.p2.createCollisionGroup();
+        this.bankCollisionGroup = game.physics.p2.createCollisionGroup();
+        this.rockCollisionGroup = game.physics.p2.createCollisionGroup();
         this.fishCollisionGroup = game.physics.p2.createCollisionGroup();
         this.overlapObstaclesCollisionGroup = game.physics.p2.createCollisionGroup();
         this.blockObstaclesCollisionGroup = game.physics.p2.createCollisionGroup();
         game.physics.p2.updateBoundsCollisionGroup();
 
 
-        this.bgObstacles = this.createBackground(this.bgCollisionGroup);
+        this.background = new PlayState.Background(this.bankCollisionGroup, this.rockCollisionGroup);
         this.weir1 = new PlayState.Weir( 5000, 0, this.blockObstaclesCollisionGroup,   1);
         this.weir2 = new PlayState.Weir( 7300, 0, this.blockObstaclesCollisionGroup,   2);
         this.mud1  = new PlayState.Mud(  8940, 0, this.overlapObstaclesCollisionGroup, 1);
@@ -44,9 +45,10 @@ var PlayState = {
         this.pipe  = new PlayState.Pipe(18775, 0);
         this.player = new PlayState.Player(200, game.world.height - 150, this.fishCollisionGroup);
 
-        this.player.sprite.body.collides(this.bgCollisionGroup, this.player.collideBG, this.player);
+        this.player.sprite.body.collides([this.bankCollisionGroup, this.rockCollisionGroup], this.player.collideBG, this.player);
         this.player.sprite.body.collides(this.blockObstaclesCollisionGroup, this.player.collideObs, this.player);
-        this.bgObstacles.body.collides(this.fishCollisionGroup);
+        this.background.bankSprite.body.collides(this.fishCollisionGroup);
+        this.background.rockSprite.body.collides(this.fishCollisionGroup);
         this.weir1.sprite.body.collides(this.fishCollisionGroup);
         this.weir2.sprite.body.collides(this.fishCollisionGroup);
 
@@ -133,17 +135,21 @@ var PlayState = {
         this.image = game.add.image(x, y, "pipe")
     },
 
-    createBackground: function(collisionGroup) {
-        var bg = game.add.image(0,0, "river");
-        var bgObstacles = game.add.sprite(0, 0);
-        game.physics.p2.enable(bgObstacles, debug);
-        bgObstacles.body.clearShapes();
-        bgObstacles.body.loadPolygon("physics-data", "River-Improvements");
+    Background: function(bankCollisionGroup, rockCollisionGroup) {
+        this.image = game.add.image(0,0, "river");
+        this.bankSprite = game.add.sprite(0, 0);
+        this.rockSprite = game.add.sprite(0, 0);
+        game.physics.p2.enable(this.bankSprite, debug);
+        game.physics.p2.enable(this.rockSprite, debug);
+        this.bankSprite.body.clearShapes();
+        this.rockSprite.body.clearShapes();
+        this.bankSprite.body.loadPolygon("physics-data", "River-Improvements");
+        this.rockSprite.body.loadPolygon("physics-data", "River-Rocks");
 
-        bgObstacles.body.static = true;
-        bgObstacles.body.setCollisionGroup(collisionGroup);
-        //bgObstacles.name = "bg";
-        return bgObstacles;
+        this.bankSprite.body.static = true;
+        this.rockSprite.body.static = true;
+        this.bankSprite.body.setCollisionGroup(bankCollisionGroup);
+        this.rockSprite.body.setCollisionGroup(rockCollisionGroup);
     },
 
     Player: function(x, y, collisionGroup) {
@@ -168,7 +174,9 @@ var PlayState = {
 
         this.jump = function() {
             this.jumping = true;
-            this.sprite.body.removeCollisionGroup([PlayState.blockObstaclesCollisionGroup, PlayState.overlapObstaclesCollisionGroup], true);
+            this.sprite.body.removeCollisionGroup([ PlayState.blockObstaclesCollisionGroup,
+                                                    PlayState.overlapObstaclesCollisionGroup,
+                                                    PlayState.rockCollisionGroup], true);
             var jumpUp   = game.add.tween(this.sprite.scale).to({x: 0.4, y: 0.4}, 500, "Linear");
             var fallDown = game.add.tween(this.sprite.scale).to({x: 0.3, y: 0.3}, 500, "Linear");
             fallDown.onComplete.add(this.onJumpEnd, this);
@@ -179,13 +187,12 @@ var PlayState = {
         this.onJumpEnd = function() {
             this.jumping = false;
             this.sprite.body.collides(PlayState.blockObstaclesCollisionGroup, this.collideObs, this);
-        }
+            this.sprite.body.collides(PlayState.rockCollisionGroup, this.collideBG, this);
+        };
 
         this.move = function() {
-            console.log(this.jumping);
             if (game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR) && !this.jumping) {
                 this.jump();
-                console.log("SPAAAAAAAAACE");
             } else if (!this.jumping) {
                 this.sprite.body.velocity.y = 0;
 
