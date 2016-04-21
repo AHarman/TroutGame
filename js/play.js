@@ -29,26 +29,26 @@ var PlayState = {
         game.physics.p2.setImpactEvents(true);
         game.physics.p2.setPostBroadphaseCallback(this.overlapInterrupt, this);
 
-        var bgCollisionGroup = game.physics.p2.createCollisionGroup();
-        var fishCollisionGroup = game.physics.p2.createCollisionGroup();
-        var overlapObstaclesCollisionGroup = game.physics.p2.createCollisionGroup();
-        var blockObstaclesCollisionGroup = game.physics.p2.createCollisionGroup();
+        this.bgCollisionGroup = game.physics.p2.createCollisionGroup();
+        this.fishCollisionGroup = game.physics.p2.createCollisionGroup();
+        this.overlapObstaclesCollisionGroup = game.physics.p2.createCollisionGroup();
+        this.blockObstaclesCollisionGroup = game.physics.p2.createCollisionGroup();
         game.physics.p2.updateBoundsCollisionGroup();
 
 
-        this.bgObstacles = this.createBackground(bgCollisionGroup);
-        //this.weir1 = new PlayState.Weir(5000, 0, blockObstaclesCollisionGroup, 1);
-        //this.weir2 = new PlayState.Weir(7300, 0, blockObstaclesCollisionGroup, 2);
-        this.mud1 = new PlayState.Mud( 8940, 0, overlapObstaclesCollisionGroup, 1);
-        this.mud2 = new PlayState.Mud(10820, 0, overlapObstaclesCollisionGroup, 2);
-        this.pipe = new PlayState.Pipe(18775, 0);
-        this.player = new PlayState.Player(200, game.world.height - 150, fishCollisionGroup);
+        this.bgObstacles = this.createBackground(this.bgCollisionGroup);
+        this.weir1 = new PlayState.Weir( 5000, 0, this.blockObstaclesCollisionGroup,   1);
+        this.weir2 = new PlayState.Weir( 7300, 0, this.blockObstaclesCollisionGroup,   2);
+        this.mud1  = new PlayState.Mud(  8940, 0, this.overlapObstaclesCollisionGroup, 1);
+        this.mud2  = new PlayState.Mud( 10820, 0, this.overlapObstaclesCollisionGroup, 2);
+        this.pipe  = new PlayState.Pipe(18775, 0);
+        this.player = new PlayState.Player(200, game.world.height - 150, this.fishCollisionGroup);
 
-        this.player.sprite.body.collides(bgCollisionGroup, this.player.collideBG, this.player);
-        this.player.sprite.body.collides(blockObstaclesCollisionGroup, this.player.collideObs, this.player);
-        this.bgObstacles.body.collides(fishCollisionGroup);
-        //this.weir1.sprite.body.collides(fishCollisionGroup);
-        //this.weir2.sprite.body.collides(fishCollisionGroup);
+        this.player.sprite.body.collides(this.bgCollisionGroup, this.player.collideBG, this.player);
+        this.player.sprite.body.collides(this.blockObstaclesCollisionGroup, this.player.collideObs, this.player);
+        this.bgObstacles.body.collides(this.fishCollisionGroup);
+        this.weir1.sprite.body.collides(this.fishCollisionGroup);
+        this.weir2.sprite.body.collides(this.fishCollisionGroup);
 
         var healthFrame = game.add.image(10, 10, "healthFrame");
         healthFrame.fixedToCamera = true;
@@ -69,13 +69,13 @@ var PlayState = {
     },
 
     overlapInterrupt: function(body1, body2) {
-        if (body1.sprite.name === "fish") {
+        if (body1.sprite.name === "fish" && !this.player.jumping) {
             if (body2.sprite.name == "mud") {
                 this.player.collideMud();
                 return false;
             }
         } else if (body1.sprite.name == "mud") {
-            if (body2.sprite.name == "fish") {
+            if (body2.sprite.name == "fish" && !this.player.jumping) {
                 this.player.collideMud();
                 return false;
             }
@@ -168,12 +168,18 @@ var PlayState = {
 
         this.jump = function() {
             this.jumping = true;
+            this.sprite.body.removeCollisionGroup([PlayState.blockObstaclesCollisionGroup, PlayState.overlapObstaclesCollisionGroup], true);
             var jumpUp   = game.add.tween(this.sprite.scale).to({x: 0.4, y: 0.4}, 500, "Linear");
             var fallDown = game.add.tween(this.sprite.scale).to({x: 0.3, y: 0.3}, 500, "Linear");
-            fallDown.onComplete.add(function(){this.jumping=false;}, this);
+            fallDown.onComplete.add(this.onJumpEnd, this);
             jumpUp.chain(fallDown);
             jumpUp.start();
         };
+
+        this.onJumpEnd = function() {
+            this.jumping = false;
+            this.sprite.body.collides(PlayState.blockObstaclesCollisionGroup, this.collideObs, this);
+        }
 
         this.move = function() {
             console.log(this.jumping);
