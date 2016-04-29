@@ -81,16 +81,13 @@ var PlayState = {
 
     postWarning: function() {
 
-        if (this.player.sprite.body.x > 4600 && !this.player.seenWeir) {
+        if (this.player.sprite.body.x > 4500 && !this.player.seenWeir) {
             this.player.seenWeir = true;
             this.createUI("ui-weir-1", this.createUI, ["ui-weir-2"]);
-
-            console.log("Weir Warning!");
             console.log(this.inMenu);
         } else if (this.player.sprite.body.x > 8100 && !this.player.seenMud) {
             this.player.seenMud = true;
-            this.createUI("ui-mud-1", this.createUI, ["ui-mud-2"]);
-            console.log("Mud Warning!");
+            this.createUI("ui-erosion-1", this.createUI, ["ui-erosion-2"]);
         }
         // Nets
         // Poll
