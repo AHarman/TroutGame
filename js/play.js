@@ -19,6 +19,14 @@ var PlayState = {
         game.load.image("ui-intro-2",     "assets/images/ui/UI-Intro-2.png");
         game.load.image("healthFrame",    "assets/images/ui/UI-Health-Bar.png");
         game.load.image("healthBar",      "assets/images/ui/Health.png");
+        game.load.image("ui-weir-1",      "assets/images/ui/UI-Weir-1.png");
+        game.load.image("ui-weir-2",      "assets/images/ui/UI-Weir-2.png");
+        game.load.image("ui-erosion-1",   "assets/images/ui/UI-Erosion-1.png");
+        game.load.image("ui-erosion-2",   "assets/images/ui/UI-Erosion-2.png");
+        game.load.image("ui-nets-1",      "assets/images/ui/UI-Nets-1.png");
+        game.load.image("ui-nets-2",      "assets/images/ui/UI-Nets-2.png");
+        game.load.image("ui-pollution-1", "assets/images/ui/UI-Pollution-1.png");
+        game.load.image("ui-pollution-2", "assets/images/ui/UI-Pollution-2.png");
         game.load.spritesheet("tilly",    "assets/images/Tilly-Spritesheet.png", 600, 229, 10);
         game.load.physics("physics-data", "assets/physics.json");
     ;},
@@ -68,6 +76,24 @@ var PlayState = {
         if (this.inMenu == 0) {
             this.player.move();
         }
+        this.postWarning();
+    },
+
+    postWarning: function() {
+
+        if (this.player.sprite.body.x > 4600 && !this.player.seenWeir) {
+            this.player.seenWeir = true;
+            this.createUI("ui-weir-1", this.createUI, ["ui-weir-2"]);
+
+            console.log("Weir Warning!");
+            console.log(this.inMenu);
+        } else if (this.player.sprite.body.x > 8100 && !this.player.seenMud) {
+            this.player.seenMud = true;
+            this.createUI("ui-mud-1", this.createUI, ["ui-mud-2"]);
+            console.log("Mud Warning!");
+        }
+        // Nets
+        // Poll
     },
 
     overlapInterrupt: function(body1, body2) {
@@ -87,7 +113,8 @@ var PlayState = {
 
     createUI: function(key, callback, args) {
         var uiImage = game.add.image(0, 0, key);
-        uiImage.position.x = (game.width  - uiImage.width)  / 2;
+        
+        uiImage.position.x = game.camera.x + (uiImage.width / 2);
         uiImage.position.y = (game.height - uiImage.height) / 2;
 
         var closeUI = function() { 
@@ -171,6 +198,11 @@ var PlayState = {
 
         this.immune = false;
         this.jumping = false;
+        
+        this.seenWeir = false;
+        this.seenMud  = false;
+        this.seenNet  = false;
+        this.seenPoll = false;
 
         this.jump = function() {
             this.jumping = true;
@@ -224,7 +256,6 @@ var PlayState = {
         this.takeDamage = function(amount) {
             if (!this.immune)
             {
-                console.log("takedamage");
                 var health = PlayState.healthBar.width - amount;
                 if (health > 0) {
                     PlayState.healthBar.width = health;
