@@ -88,8 +88,10 @@ var PlayState = {
         } else if (this.player.sprite.body.x > 8100 && !this.player.seenMud) {
             this.player.seenMud = true;
             this.createUI("ui-erosion-1", this.createUI, ["ui-erosion-2"]);
+        } else if (this.player.sprite.body.x > 1100 && !this.player.seenNet) {
+            this.player.seenNet = true;
+            this.createUI("ui-nets-1", this.createUI, ["ui-nets-2"]);
         }
-        // Nets
         // Poll
     },
 
