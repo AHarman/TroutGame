@@ -347,8 +347,8 @@ var PlayState = {
 
         this.collideBG  = function(bodyA, bodyB, shapeA, shapeB, equation) {this.takeDamage( 5);console.log("bg");};
         this.collideObs = function(bodyA, bodyB, shapeA, shapeB, equation) {this.takeDamage(20);console.log("obs");};
-        this.collideMud = function(body) {this.takeDamage(10);console.log("mud");};
-        this.collideNet = function(body) {this.takeDamage(10);console.log("net");};
+        this.collideMud = function(body) {if(!this.jumping){this.takeDamage(10);console.log("mud");}};
+        this.collideNet = function(body) {if(!this.jumping){this.takeDamage(10);console.log("net");}};
 
         this.takeDamage = function(amount) {
             if (!this.immune)
