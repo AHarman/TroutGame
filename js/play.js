@@ -112,6 +112,7 @@ var PlayState = {
     },
 
     createUI: function(key, callback, args) {
+        this.player.pause();
         var uiImage = game.add.image(0, 0, key);
         
         uiImage.position.x = game.camera.x + (uiImage.width / 2);
@@ -121,6 +122,9 @@ var PlayState = {
                 uiImage.destroy();
                 button.destroy();
                 this.inMenu--;
+                if (this.inMenu == 0) {
+                    this.player.unpause();
+                }
                 if (callback)
                     callback.apply(this, args);
             };
@@ -198,11 +202,34 @@ var PlayState = {
 
         this.immune = false;
         this.jumping = false;
+        this.paused = false;
         
         this.seenWeir = false;
         this.seenMud  = false;
         this.seenNet  = false;
         this.seenPoll = false;
+
+        this.pause = function() {
+            if (this.paused)
+                return;
+
+            this.oldVelX = this.sprite.body.velocity.x;
+            this.oldVelY = this.sprite.body.velocity.y;
+            this.sprite.body.velocity.x = 0;
+            this.sprite.body.velocity.y = 0;
+            player.animations.paused = true;
+            this.paused = true;
+        };
+
+        this.unpause = function() {
+            if (!this.paused)
+                return;
+
+            this.sprite.body.velocity.x = this.oldVelX;
+            this.sprite.body.velocity.y = this.oldVelY;
+            player.animations.paused = false;
+            this.paused = false;
+        };
 
         this.jump = function() {
             this.jumping = true;
@@ -223,7 +250,9 @@ var PlayState = {
         };
 
         this.move = function() {
-            if (game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR) && !this.jumping) {
+            if (this.paused) {
+                return
+            } else if (game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR) && !this.jumping) {
                 this.jump();
             } else if (!this.jumping) {
                 this.sprite.body.velocity.y = 0;
