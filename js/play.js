@@ -58,9 +58,9 @@ var PlayState = {
         this.mud1  = new PlayState.Mud(  8940, 0, this.overlapObstaclesCollisionGroup, 1);
         this.mud2  = new PlayState.Mud( 10820, 0, this.overlapObstaclesCollisionGroup, 2);
         this.pipe  = new PlayState.Pipe(18775, 0);
+        this.pollution = this.placePollution(this.overlapObstaclesCollisionGroup);
         this.player = new PlayState.Player(200, game.world.height - 150, this.fishCollisionGroup);
         this.nets = this.placeNets(this.overlapObstaclesCollisionGroup);
-        this.pollution = this.placePollution(this.overlapObstaclesCollisionGroup);
 
         this.player.sprite.body.collides([this.bankCollisionGroup, this.rockCollisionGroup], this.player.collideBG, this.player);
         this.player.sprite.body.collides(this.blockObstaclesCollisionGroup, this.player.collideObs, this.player);
@@ -93,7 +93,6 @@ var PlayState = {
         if (this.player.sprite.body.x > 4500 && !this.player.seenWeir) {
             this.player.seenWeir = true;
             this.createUI("ui-weir-1", this.createUI, ["ui-weir-2"]);
-            console.log(this.inMenu);
         } else if (this.player.sprite.body.x > 8100 && !this.player.seenMud) {
             this.player.seenMud = true;
             this.createUI("ui-erosion-1", this.createUI, ["ui-erosion-2"]);
@@ -113,7 +112,6 @@ var PlayState = {
 
     displayScore: function() {
         this.player.pause();
-        console.log("here");
 
         var score = PlayState.healthBar.width * 100;
         var uiImage = game.add.image(0, 0, "ui-score");
@@ -139,6 +137,10 @@ var PlayState = {
         } else if ( (body1.sprite.name === "fish" && body2.sprite.name == "net" ) ||
                     (body1.sprite.name === "net"  && body2.sprite.name == "fish")) {
             this.player.collideNet();
+            return false;
+        } else if ( (body1.sprite.name === "fish" && body2.sprite.name == "pollution" ) ||
+                    (body1.sprite.name === "pollution"  && body2.sprite.name == "fish")) {
+            this.player.collidePollution();
             return false;
         }
         return true;
@@ -206,7 +208,6 @@ var PlayState = {
                 }
                 if (callback)
                     callback.apply(this, args);
-                console.log("CloseUI")
             };
 
         var button = game.add.button(563, 457, null, closeUI.bind(this));
@@ -386,10 +387,11 @@ var PlayState = {
             }
         };
 
-        this.collideBG  = function(bodyA, bodyB, shapeA, shapeB, equation) {this.takeDamage( 5);console.log("bg");};
-        this.collideObs = function(bodyA, bodyB, shapeA, shapeB, equation) {this.takeDamage(20);console.log("obs");};
-        this.collideMud = function(body) {if(!this.jumping){this.takeDamage(10);console.log("mud");}};
-        this.collideNet = function(body) {if(!this.jumping){this.takeDamage(10);console.log("net");}};
+        this.collideBG  = function(bodyA, bodyB, shapeA, shapeB, equation) {this.takeDamage( 5);};
+        this.collideObs = function(bodyA, bodyB, shapeA, shapeB, equation) {this.takeDamage(20);};
+        this.collideMud = function(body) {if(!this.jumping){this.takeDamage(10);}};
+        this.collideNet = function(body) {if(!this.jumping){this.takeDamage(10);}};
+        this.collidePollution = function(body) {if(!this.jumping){this.takeDamage(10);}};
 
         this.takeDamage = function(amount) {
             if (!this.immune)
