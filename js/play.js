@@ -99,8 +99,10 @@ var PlayState = {
         } else if (this.player.sprite.body.x > 1100 && !this.player.seenNet) {
             this.player.seenNet = true;
             this.createUI("ui-nets-1", this.createUI, ["ui-nets-2"]);
+        } else if (this.player.sprite.body.x > 12100 && !this.player.seenPoll) {
+            this.player.seenPoll = true;
+            this.createUI("ui-pollution-1", this.createUI, ["ui-pollution-2"]);
         }
-        // Poll
     },
 
     checkWin: function() {
@@ -391,7 +393,7 @@ var PlayState = {
         this.collideObs = function(bodyA, bodyB, shapeA, shapeB, equation) {this.takeDamage(20);};
         this.collideMud = function(body) {if(!this.jumping){this.takeDamage(10);}};
         this.collideNet = function(body) {if(!this.jumping){this.takeDamage(10);}};
-        this.collidePollution = function(body) {if(!this.jumping){this.takeDamage(10);}};
+        this.collidePollution = function(body) {if(!this.jumping){this.takeDamage(15);}};
 
         this.takeDamage = function(amount) {
             if (!this.immune)
