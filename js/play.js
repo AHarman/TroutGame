@@ -34,6 +34,7 @@ var PlayState = {
         game.load.image("ui-pollution-1", "assets/images/ui/UI-Pollution-1.png");
         game.load.image("ui-pollution-2", "assets/images/ui/UI-Pollution-2.png");
         game.load.image("ui-win",         "assets/images/ui/UI-Win.png");
+        game.load.image("ui-score",       "assets/images/ui/UI-Score.png");
         game.load.spritesheet("tilly",    "assets/images/Tilly-Spritesheet.png", 600, 229, 10);
         game.load.physics("physics-data", "assets/physics.json");
     ;},
@@ -104,9 +105,30 @@ var PlayState = {
     },
 
     checkWin: function() {
-        if (this.player.sprite.body.x > 24150) {
-            this.createUI("ui-win");
+        if (this.player.sprite.body.x > 24150 && !this.player.won) {
+            this.player.won = true;
+            this.createUI("ui-win", this.displayScore, []);
         }
+    },
+
+    displayScore: function() {
+        this.player.pause();
+        console.log("here");
+
+        var score = PlayState.healthBar.width * 100;
+        var uiImage = game.add.image(0, 0, "ui-score");
+        
+        uiImage.position.x = game.camera.x + (uiImage.width / 2);
+        uiImage.position.y = (game.height - uiImage.height) / 2;
+
+        var button = game.add.button(507, 458, null, function(){game.state.start("play")});
+        button.width = 165;
+        button.height = 62;
+        button.input.useHandCursor = true;
+
+        uiImage.addChild(button);
+
+        game.add.text(game.camera.x + game.width / 2, game.height / 2, score.toString(), { font: "65px Arial", "fontStyle":  "bold", align: "center" });
     },
 
     overlapInterrupt: function(body1, body2) {
@@ -158,6 +180,7 @@ var PlayState = {
                 }
                 if (callback)
                     callback.apply(this, args);
+                console.log("CloseUI")
             };
 
         var button = game.add.button(563, 457, null, closeUI.bind(this));
@@ -246,6 +269,7 @@ var PlayState = {
         this.immune = false;
         this.jumping = false;
         this.paused = false;
+        this.won = false;
         
         this.seenWeir = false;
         this.seenMud  = false;
