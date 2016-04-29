@@ -33,6 +33,7 @@ var PlayState = {
         game.load.image("ui-nets-2",      "assets/images/ui/UI-Nets-2.png");
         game.load.image("ui-pollution-1", "assets/images/ui/UI-Pollution-1.png");
         game.load.image("ui-pollution-2", "assets/images/ui/UI-Pollution-2.png");
+        game.load.image("ui-win",         "assets/images/ui/UI-Win.png");
         game.load.spritesheet("tilly",    "assets/images/Tilly-Spritesheet.png", 600, 229, 10);
         game.load.physics("physics-data", "assets/physics.json");
     ;},
@@ -84,10 +85,10 @@ var PlayState = {
             this.player.move();
         }
         this.postWarning();
+        this.checkWin();
     },
 
     postWarning: function() {
-
         if (this.player.sprite.body.x > 4500 && !this.player.seenWeir) {
             this.player.seenWeir = true;
             this.createUI("ui-weir-1", this.createUI, ["ui-weir-2"]);
@@ -100,6 +101,12 @@ var PlayState = {
             this.createUI("ui-nets-1", this.createUI, ["ui-nets-2"]);
         }
         // Poll
+    },
+
+    checkWin: function() {
+        if (this.player.sprite.body.x > 24150) {
+            this.createUI("ui-win");
+        }
     },
 
     overlapInterrupt: function(body1, body2) {
