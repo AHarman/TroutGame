@@ -89,23 +89,45 @@ var PlayState = {
     },
 
     placeNets: function(collisionGroup) {
-        var netsDefs = [{x: 1607, y: 259, num: 2},
-                    {x: 2377, y: 368, num: 1},
-                    {x: 3111, y: 419, num: 3},
-                    {x: 3673, y: 144, num: 1},
-                    {x: 4399, y: 374, num: 2},
-                    {x: 5879, y: 385, num: 2},
-                    {x: 6653, y: 232, num: 3},
-                    {x: 8065, y: 208, num: 3},
-                    {x: 8650, y: 355, num: 1}];
+        var netsDefs = [{x:  1607, y: 259, num: 2},
+                        {x:  2377, y: 368, num: 1},
+                        {x:  3111, y: 419, num: 3},
+                        {x:  3673, y: 144, num: 1},
+                        {x:  4399, y: 374, num: 2},
+                        {x:  5879, y: 385, num: 2},
+                        {x:  6653, y: 232, num: 3},
+                        {x:  8065, y: 208, num: 3},
+                        {x:  8650, y: 355, num: 1},
+                        {x: 16612, y: 213, num: 1}];
         var nets = [];
 
         for (var i = 0; i < netsDefs.length; i++) {
             var net = new PlayState.Net(netsDefs[i].x, netsDefs[i].y, collisionGroup, netsDefs[i].num);
             nets.push(net);
         }
-        return nets
+        return nets;
+    },
 
+    placePollution: function(collisionGroup) {
+        var pollDefs = [{x: 12419, y: 256, num: 2, small: false},
+                        {x: 12873, y: 432, num: 1, small: false},
+                        {x: 13392, y: 253, num: 2, small: false},
+                        {x: 14425, y: 272, num: 3, small: false},
+                        {x: 14880, y: 309, num: 2, small: false},
+                        {x: 15698, y: 283, num: 1, small: false},
+                        {x: 18361, y: 216, num: 2, small: false},
+                        {x: 18658, y: 388, num: 3, small: false},
+                        {x: 18617, y: 418, num: 1, small: false},
+                        {x: 19197, y: 539, num: 2, small:  true},
+                        {x: 19844, y: 493, num: 3, small:  true},
+                        {x: 20767, y: 133, num: 1, small:  true},];
+        var polls = [];
+
+        for (var i = 0; i < pollDefs.length; i++) {
+            var poll = new PlayState.Pollution(pollDefs[i].x, pollDefs[i].y, collisionGroup, pollDefs[i].num);
+            polls.push(poll);
+        }
+        return polls;
     },
 
     createUI: function(key, callback, args) {
