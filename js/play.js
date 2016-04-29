@@ -25,6 +25,16 @@ var PlayState = {
         game.load.image("ui-intro-2",     "assets/images/ui/UI-Intro-2.png");
         game.load.image("healthFrame",    "assets/images/ui/UI-Health-Bar.png");
         game.load.image("healthBar",      "assets/images/ui/Health.png");
+        game.load.image("ui-weir-1",      "assets/images/ui/UI-Weir-1.png");
+        game.load.image("ui-weir-2",      "assets/images/ui/UI-Weir-2.png");
+        game.load.image("ui-erosion-1",   "assets/images/ui/UI-Erosion-1.png");
+        game.load.image("ui-erosion-2",   "assets/images/ui/UI-Erosion-2.png");
+        game.load.image("ui-nets-1",      "assets/images/ui/UI-Nets-1.png");
+        game.load.image("ui-nets-2",      "assets/images/ui/UI-Nets-2.png");
+        game.load.image("ui-pollution-1", "assets/images/ui/UI-Pollution-1.png");
+        game.load.image("ui-pollution-2", "assets/images/ui/UI-Pollution-2.png");
+        game.load.image("ui-win",         "assets/images/ui/UI-Win.png");
+        game.load.image("ui-score",       "assets/images/ui/UI-Score.png");
         game.load.spritesheet("tilly",    "assets/images/Tilly-Spritesheet.png", 600, 229, 10);
         game.load.physics("physics-data", "assets/physics.json");
     ;},
@@ -35,28 +45,29 @@ var PlayState = {
         game.physics.p2.setImpactEvents(true);
         game.physics.p2.setPostBroadphaseCallback(this.overlapInterrupt, this);
 
-        var bgCollisionGroup = game.physics.p2.createCollisionGroup();
-        var fishCollisionGroup = game.physics.p2.createCollisionGroup();
-        var overlapObstaclesCollisionGroup = game.physics.p2.createCollisionGroup();
-        var blockObstaclesCollisionGroup = game.physics.p2.createCollisionGroup();
+        this.bankCollisionGroup = game.physics.p2.createCollisionGroup();
+        this.rockCollisionGroup = game.physics.p2.createCollisionGroup();
+        this.fishCollisionGroup = game.physics.p2.createCollisionGroup();
+        this.overlapObstaclesCollisionGroup = game.physics.p2.createCollisionGroup();
+        this.blockObstaclesCollisionGroup = game.physics.p2.createCollisionGroup();
         game.physics.p2.updateBoundsCollisionGroup();
 
+        this.background = new PlayState.Background(this.bankCollisionGroup, this.rockCollisionGroup);
+        this.weir1 = new PlayState.Weir( 5000, 0, this.blockObstaclesCollisionGroup,   1);
+        this.weir2 = new PlayState.Weir( 7300, 0, this.blockObstaclesCollisionGroup,   2);
+        this.mud1  = new PlayState.Mud(  8940, 0, this.overlapObstaclesCollisionGroup, 1);
+        this.mud2  = new PlayState.Mud( 10820, 0, this.overlapObstaclesCollisionGroup, 2);
+        this.pipe  = new PlayState.Pipe(18775, 0);
+        this.player = new PlayState.Player(200, game.world.height - 150, this.fishCollisionGroup);
+        this.nets = this.placeNets(this.overlapObstaclesCollisionGroup);
+        this.pollution = this.placePollution(this.overlapObstaclesCollisionGroup);
 
-        this.bgObstacles = this.createBackground(bgCollisionGroup);
-        // this.weir1 = new PlayState.Weir(5000, 0, blockObstaclesCollisionGroup, 1);
-        // this.weir2 = new PlayState.Weir(7300, 0, blockObstaclesCollisionGroup, 2);
-        this.mud1 = new PlayState.Mud( 8940, 0, overlapObstaclesCollisionGroup, 1);
-        this.mud2 = new PlayState.Mud(10820, 0, overlapObstaclesCollisionGroup, 2);
-        this.pipe = new PlayState.Pipe(18775, 0);
-        this.player = new PlayState.Player(200, game.world.height - 150, fishCollisionGroup);
-        this.nets = this.placeNets(overlapObstaclesCollisionGroup);
-        this.pollution = this.placePollution(overlapObstaclesCollisionGroup);
-
-        this.player.sprite.body.collides(bgCollisionGroup, this.player.collideBG, this.player);
-        this.player.sprite.body.collides(blockObstaclesCollisionGroup, this.player.collideObs, this.player);
-        this.bgObstacles.body.collides(fishCollisionGroup);
-        // this.weir1.sprite.body.collides(fishCollisionGroup);
-        // this.weir2.sprite.body.collides(fishCollisionGroup);
+        this.player.sprite.body.collides([this.bankCollisionGroup, this.rockCollisionGroup], this.player.collideBG, this.player);
+        this.player.sprite.body.collides(this.blockObstaclesCollisionGroup, this.player.collideObs, this.player);
+        this.background.bankSprite.body.collides(this.fishCollisionGroup);
+        this.background.rockSprite.body.collides(this.fishCollisionGroup);
+        this.weir1.sprite.body.collides(this.fishCollisionGroup);
+        this.weir2.sprite.body.collides(this.fishCollisionGroup);
 
         var healthFrame = game.add.image(10, 10, "healthFrame");
         healthFrame.fixedToCamera = true;
@@ -74,6 +85,50 @@ var PlayState = {
         if (this.inMenu == 0) {
             this.player.move();
         }
+        this.postWarning();
+        this.checkWin();
+    },
+
+    postWarning: function() {
+        if (this.player.sprite.body.x > 4500 && !this.player.seenWeir) {
+            this.player.seenWeir = true;
+            this.createUI("ui-weir-1", this.createUI, ["ui-weir-2"]);
+            console.log(this.inMenu);
+        } else if (this.player.sprite.body.x > 8100 && !this.player.seenMud) {
+            this.player.seenMud = true;
+            this.createUI("ui-erosion-1", this.createUI, ["ui-erosion-2"]);
+        } else if (this.player.sprite.body.x > 1100 && !this.player.seenNet) {
+            this.player.seenNet = true;
+            this.createUI("ui-nets-1", this.createUI, ["ui-nets-2"]);
+        }
+        // Poll
+    },
+
+    checkWin: function() {
+        if (this.player.sprite.body.x > 24150 && !this.player.won) {
+            this.player.won = true;
+            this.createUI("ui-win", this.displayScore, []);
+        }
+    },
+
+    displayScore: function() {
+        this.player.pause();
+        console.log("here");
+
+        var score = PlayState.healthBar.width * 100;
+        var uiImage = game.add.image(0, 0, "ui-score");
+        
+        uiImage.position.x = game.camera.x + (uiImage.width / 2);
+        uiImage.position.y = (game.height - uiImage.height) / 2;
+
+        var button = game.add.button(507, 458, null, function(){game.state.start("play")});
+        button.width = 165;
+        button.height = 62;
+        button.input.useHandCursor = true;
+
+        uiImage.addChild(button);
+
+        game.add.text(game.camera.x + game.width / 2, game.height / 2, score.toString(), { font: "65px Arial", "fontStyle":  "bold", align: "center" });
     },
 
     overlapInterrupt: function(body1, body2) {
@@ -136,16 +191,22 @@ var PlayState = {
     },
 
     createUI: function(key, callback, args) {
+        this.player.pause();
         var uiImage = game.add.image(0, 0, key);
-        uiImage.position.x = (game.width  - uiImage.width)  / 2;
+        
+        uiImage.position.x = game.camera.x + (uiImage.width / 2);
         uiImage.position.y = (game.height - uiImage.height) / 2;
 
         var closeUI = function() { 
                 uiImage.destroy();
                 button.destroy();
                 this.inMenu--;
+                if (this.inMenu == 0) {
+                    this.player.unpause();
+                }
                 if (callback)
                     callback.apply(this, args);
+                console.log("CloseUI")
             };
 
         var button = game.add.button(563, 457, null, closeUI.bind(this));
@@ -212,17 +273,21 @@ var PlayState = {
         this.image = game.add.image(x, y, "pipe")
     },
 
-    createBackground: function(collisionGroup) {
-        var bg = game.add.image(0,0, "river");
-        var bgObstacles = game.add.sprite(0, 0);
-        game.physics.p2.enable(bgObstacles, debug);
-        bgObstacles.body.clearShapes();
-        bgObstacles.body.loadPolygon("physics-data", "River-Improvements");
+    Background: function(bankCollisionGroup, rockCollisionGroup) {
+        this.image = game.add.image(0,0, "river");
+        this.bankSprite = game.add.sprite(0, 0);
+        this.rockSprite = game.add.sprite(0, 0);
+        game.physics.p2.enable(this.bankSprite, debug);
+        game.physics.p2.enable(this.rockSprite, debug);
+        this.bankSprite.body.clearShapes();
+        this.rockSprite.body.clearShapes();
+        this.bankSprite.body.loadPolygon("physics-data", "River-Improvements");
+        this.rockSprite.body.loadPolygon("physics-data", "River-Rocks");
 
-        bgObstacles.body.static = true;
-        bgObstacles.body.setCollisionGroup(collisionGroup);
-        //bgObstacles.name = "bg";
-        return bgObstacles;
+        this.bankSprite.body.static = true;
+        this.rockSprite.body.static = true;
+        this.bankSprite.body.setCollisionGroup(bankCollisionGroup);
+        this.rockSprite.body.setCollisionGroup(rockCollisionGroup);
     },
 
     Player: function(x, y, collisionGroup) {
@@ -243,39 +308,92 @@ var PlayState = {
         this.sprite.name = "fish";
 
         this.immune = false;
+        this.jumping = false;
+        this.paused = false;
+        this.won = false;
+        
+        this.seenWeir = false;
+        this.seenMud  = false;
+        this.seenNet  = false;
+        this.seenPoll = false;
+
+        this.pause = function() {
+            if (this.paused)
+                return;
+
+            this.oldVelX = this.sprite.body.velocity.x;
+            this.oldVelY = this.sprite.body.velocity.y;
+            this.sprite.body.velocity.x = 0;
+            this.sprite.body.velocity.y = 0;
+            this.sprite.animations.paused = true;
+            this.paused = true;
+        };
+
+        this.unpause = function() {
+            if (!this.paused)
+                return;
+
+            this.sprite.body.velocity.x = this.oldVelX;
+            this.sprite.body.velocity.y = this.oldVelY;
+            this.sprite.animations.paused = false;
+            this.paused = false;
+        };
+
+        this.jump = function() {
+            this.jumping = true;
+            this.sprite.body.removeCollisionGroup([ PlayState.blockObstaclesCollisionGroup,
+                                                    PlayState.overlapObstaclesCollisionGroup,
+                                                    PlayState.rockCollisionGroup], true);
+            var jumpUp   = game.add.tween(this.sprite.scale).to({x: 0.4, y: 0.4}, 500, "Linear");
+            var fallDown = game.add.tween(this.sprite.scale).to({x: 0.3, y: 0.3}, 500, "Linear");
+            fallDown.onComplete.add(this.onJumpEnd, this);
+            jumpUp.chain(fallDown);
+            jumpUp.start();
+        };
+
+        this.onJumpEnd = function() {
+            this.jumping = false;
+            this.sprite.body.collides(PlayState.blockObstaclesCollisionGroup, this.collideObs, this);
+            this.sprite.body.collides(PlayState.rockCollisionGroup, this.collideBG, this);
+        };
 
         this.move = function() {
-            this.sprite.body.velocity.y = 0;
+            if (this.paused) {
+                return
+            } else if (game.input.keyboard.isDown(Phaser.Keyboard.SPACEBAR) && !this.jumping) {
+                this.jump();
+            } else if (!this.jumping) {
+                this.sprite.body.velocity.y = 0;
 
-            if (this.sprite.body.velocity.x > 30)
-                this.sprite.body.velocity.x -= 4;
-            else
-                this.sprite.body.velocity.x = 30;
+                if (this.sprite.body.velocity.x > 30)
+                    this.sprite.body.velocity.x -= 4;
+                else
+                    this.sprite.body.velocity.x = 30;
 
-            if (PlayState.cursors.right.isDown)
-                this.sprite.body.velocity.x = 500;
-            else if (this.sprite.position.x - game.camera.x > 100)
-                game.camera.x += 1;
+                if (PlayState.cursors.right.isDown)
+                    this.sprite.body.velocity.x = 500;
+                else if (this.sprite.position.x - game.camera.x > 100)
+                    game.camera.x += 1;
 
-            if (PlayState.cursors.up.isDown)
-                this.sprite.body.velocity.y = -150;
-            else if (PlayState.cursors.down.isDown)
-                this.sprite.body.velocity.y = 150;
+                if (PlayState.cursors.up.isDown)
+                    this.sprite.body.velocity.y = -150;
+                else if (PlayState.cursors.down.isDown)
+                    this.sprite.body.velocity.y = 150;
 
-            this.sprite.animations.currentAnim.speed = Math.max( 5,
-                                                        Math.abs(this.sprite.body.velocity.x / 20),
-                                                        Math.abs(this.sprite.body.velocity.y / 10));
+                this.sprite.animations.currentAnim.speed = Math.max( 5,
+                                                            Math.abs(this.sprite.body.velocity.x / 20),
+                                                            Math.abs(this.sprite.body.velocity.y / 10));
+            }
         };
 
         this.collideBG  = function(bodyA, bodyB, shapeA, shapeB, equation) {this.takeDamage( 5);console.log("bg");};
         this.collideObs = function(bodyA, bodyB, shapeA, shapeB, equation) {this.takeDamage(20);console.log("obs");};
-        this.collideMud = function(body) {this.takeDamage(10);console.log("mud");};
-        this.collideNet = function(body) {this.takeDamage(10);console.log("net");};
+        this.collideMud = function(body) {if(!this.jumping){this.takeDamage(10);console.log("mud");}};
+        this.collideNet = function(body) {if(!this.jumping){this.takeDamage(10);console.log("net");}};
 
         this.takeDamage = function(amount) {
             if (!this.immune)
             {
-                console.log("takedamage");
                 var health = PlayState.healthBar.width - amount;
                 if (health > 0) {
                     PlayState.healthBar.width = health;
