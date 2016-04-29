@@ -14,6 +14,12 @@ var PlayState = {
         game.load.image("weir-2",         "assets/images/weir-2.jpg");
         game.load.image("mud-1",          "assets/images/mud-1.jpg");
         game.load.image("mud-2",          "assets/images/mud-2.jpg");
+        game.load.image("net-1",          "assets/images/net-1.png");
+        game.load.image("net-2",          "assets/images/net-2.png");
+        game.load.image("net-3",          "assets/images/net-3.png");
+        // game.load.image("pollution-1",    "assets/images/pollution-1.png")
+        // game.load.image("pollution-2",    "assets/images/pollution-2.png")
+        // game.load.image("pollution-3",    "assets/images/pollution-3.png")
         game.load.image("pipe",           "assets/images/pipe.jpg");
         game.load.image("ui-intro-1",     "assets/images/ui/UI-Intro-1.png");
         game.load.image("ui-intro-2",     "assets/images/ui/UI-Intro-2.png");
@@ -37,18 +43,19 @@ var PlayState = {
 
 
         this.bgObstacles = this.createBackground(bgCollisionGroup);
-        //this.weir1 = new PlayState.Weir(5000, 0, blockObstaclesCollisionGroup, 1);
-        //this.weir2 = new PlayState.Weir(7300, 0, blockObstaclesCollisionGroup, 2);
+        this.weir1 = new PlayState.Weir(5000, 0, blockObstaclesCollisionGroup, 1);
+        this.weir2 = new PlayState.Weir(7300, 0, blockObstaclesCollisionGroup, 2);
         this.mud1 = new PlayState.Mud( 8940, 0, overlapObstaclesCollisionGroup, 1);
         this.mud2 = new PlayState.Mud(10820, 0, overlapObstaclesCollisionGroup, 2);
         this.pipe = new PlayState.Pipe(18775, 0);
         this.player = new PlayState.Player(200, game.world.height - 150, fishCollisionGroup);
+        this.nets = this.placeNets(overlapObstaclesCollisionGroup);
 
         this.player.sprite.body.collides(bgCollisionGroup, this.player.collideBG, this.player);
         this.player.sprite.body.collides(blockObstaclesCollisionGroup, this.player.collideObs, this.player);
         this.bgObstacles.body.collides(fishCollisionGroup);
-        //this.weir1.sprite.body.collides(fishCollisionGroup);
-        //this.weir2.sprite.body.collides(fishCollisionGroup);
+        this.weir1.sprite.body.collides(fishCollisionGroup);
+        this.weir2.sprite.body.collides(fishCollisionGroup);
 
         var healthFrame = game.add.image(10, 10, "healthFrame");
         healthFrame.fixedToCamera = true;
@@ -69,18 +76,36 @@ var PlayState = {
     },
 
     overlapInterrupt: function(body1, body2) {
-        if (body1.sprite.name === "fish") {
-            if (body2.sprite.name == "mud") {
-                this.player.collideMud();
-                return false;
-            }
-        } else if (body1.sprite.name == "mud") {
-            if (body2.sprite.name == "fish") {
-                this.player.collideMud();
-                return false;
-            }
+        if ((body1.sprite.name === "fish" && body2.sprite.name == "mud" ) ||
+            (body1.sprite.name === "mud"  && body2.sprite.name == "fish")) {
+            this.player.collideMud();
+            return false;
+        } else if ( (body1.sprite.name === "fish" && body2.sprite.name == "net" ) ||
+                    (body1.sprite.name === "net"  && body2.sprite.name == "fish")) {
+            this.player.collideNet();
+            return false;
         }
         return true;
+    },
+
+    placeNets: function(collisionGroup) {
+        var netsDefs = [{x: 1607, y: 259, num: 2},
+                    {x: 2377, y: 368, num: 1},
+                    {x: 3111, y: 419, num: 3},
+                    {x: 3673, y: 144, num: 1},
+                    {x: 4399, y: 374, num: 2},
+                    {x: 5879, y: 385, num: 2},
+                    {x: 6653, y: 232, num: 3},
+                    {x: 8065, y: 208, num: 3},
+                    {x: 8650, y: 355, num: 1}];
+        var nets = [];
+
+        for (var i = 0; i < netsDefs.length; i++) {
+            var net = new PlayState.Net(netsDefs[i].x, netsDefs[i].y, collisionGroup, netsDefs[i].num);
+            nets.push(net);
+        }
+        return nets
+
     },
 
     createUI: function(key, callback, args) {
@@ -127,6 +152,18 @@ var PlayState = {
         this.sprite.body.static = true;
         this.sprite.body.setCollisionGroup(collisionGroup);
         this.sprite.name = "mud";
+    },
+
+    Net: function(x, y, collisionGroup, number) {
+        this.image = game.add.image(x, y, "net-" + number);
+        this.sprite = game.add.sprite(x, y);
+
+        game.physics.p2.enable(this.sprite, debug);
+        this.sprite.body.clearShapes();
+        this.sprite.body.loadPolygon("physics-data", "Night-Net-" + number);
+        this.sprite.body.static = true;
+        this.sprite.body.setCollisionGroup(collisionGroup);
+        this.sprite.name = "net";
     },
 
     Pipe: function(x, y) {
@@ -191,6 +228,7 @@ var PlayState = {
         this.collideBG  = function(bodyA, bodyB, shapeA, shapeB, equation) {this.takeDamage( 5);console.log("bg");};
         this.collideObs = function(bodyA, bodyB, shapeA, shapeB, equation) {this.takeDamage(20);console.log("obs");};
         this.collideMud = function(body) {this.takeDamage(10);console.log("mud");};
+        this.collideNet = function(body) {this.takeDamage(10);console.log("net");};
 
         this.takeDamage = function(amount) {
             if (!this.immune)
