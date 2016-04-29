@@ -17,9 +17,9 @@ var PlayState = {
         game.load.image("net-1",          "assets/images/net-1.png");
         game.load.image("net-2",          "assets/images/net-2.png");
         game.load.image("net-3",          "assets/images/net-3.png");
-        // game.load.image("pollution-1",    "assets/images/pollution-1.png")
-        // game.load.image("pollution-2",    "assets/images/pollution-2.png")
-        // game.load.image("pollution-3",    "assets/images/pollution-3.png")
+        game.load.image("pollution-1",    "assets/images/pollution-1.png")
+        game.load.image("pollution-2",    "assets/images/pollution-2.png")
+        game.load.image("pollution-3",    "assets/images/pollution-3.png")
         game.load.image("pipe",           "assets/images/pipe.jpg");
         game.load.image("ui-intro-1",     "assets/images/ui/UI-Intro-1.png");
         game.load.image("ui-intro-2",     "assets/images/ui/UI-Intro-2.png");
@@ -43,19 +43,20 @@ var PlayState = {
 
 
         this.bgObstacles = this.createBackground(bgCollisionGroup);
-        this.weir1 = new PlayState.Weir(5000, 0, blockObstaclesCollisionGroup, 1);
-        this.weir2 = new PlayState.Weir(7300, 0, blockObstaclesCollisionGroup, 2);
+        // this.weir1 = new PlayState.Weir(5000, 0, blockObstaclesCollisionGroup, 1);
+        // this.weir2 = new PlayState.Weir(7300, 0, blockObstaclesCollisionGroup, 2);
         this.mud1 = new PlayState.Mud( 8940, 0, overlapObstaclesCollisionGroup, 1);
         this.mud2 = new PlayState.Mud(10820, 0, overlapObstaclesCollisionGroup, 2);
         this.pipe = new PlayState.Pipe(18775, 0);
         this.player = new PlayState.Player(200, game.world.height - 150, fishCollisionGroup);
         this.nets = this.placeNets(overlapObstaclesCollisionGroup);
+        this.pollution = this.placePollution(overlapObstaclesCollisionGroup);
 
         this.player.sprite.body.collides(bgCollisionGroup, this.player.collideBG, this.player);
         this.player.sprite.body.collides(blockObstaclesCollisionGroup, this.player.collideObs, this.player);
         this.bgObstacles.body.collides(fishCollisionGroup);
-        this.weir1.sprite.body.collides(fishCollisionGroup);
-        this.weir2.sprite.body.collides(fishCollisionGroup);
+        // this.weir1.sprite.body.collides(fishCollisionGroup);
+        // this.weir2.sprite.body.collides(fishCollisionGroup);
 
         var healthFrame = game.add.image(10, 10, "healthFrame");
         healthFrame.fixedToCamera = true;
@@ -123,8 +124,12 @@ var PlayState = {
                         {x: 20767, y: 133, num: 1, small:  true},];
         var polls = [];
 
+        this.resizePolygons("physics-data", "Pollution-1-small", 0.5);
+        this.resizePolygons("physics-data", "Pollution-2-small", 0.5);
+        this.resizePolygons("physics-data", "Pollution-3-small", 0.5);
+
         for (var i = 0; i < pollDefs.length; i++) {
-            var poll = new PlayState.Pollution(pollDefs[i].x, pollDefs[i].y, collisionGroup, pollDefs[i].num);
+            var poll = new PlayState.Pollution(pollDefs[i].x, pollDefs[i].y, collisionGroup, pollDefs[i].num, pollDefs.small);
             polls.push(poll);
         }
         return polls;
@@ -186,6 +191,21 @@ var PlayState = {
         this.sprite.body.static = true;
         this.sprite.body.setCollisionGroup(collisionGroup);
         this.sprite.name = "net";
+    },
+
+    Pollution: function(x, y, collisionGroup, number, small) {
+        this.image = game.add.image(x, y, "pollution-" + number);
+        this.sprite = game.add.sprite(x, y);
+        if (small) {
+            this.sprite.scale.set(0.5);
+        }
+
+        game.physics.p2.enable(this.sprite, debug);
+        this.sprite.body.clearShapes();
+        this.sprite.body.loadPolygon("physics-data", "Pollution-" + number + (small ? "-small" : ""));
+        this.sprite.body.static = true;
+        this.sprite.body.setCollisionGroup(collisionGroup);
+        this.sprite.name = "pollution";
     },
 
     Pipe: function(x, y) {
