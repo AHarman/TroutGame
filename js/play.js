@@ -370,11 +370,15 @@ var PlayState = {
 
                 if (this.sprite.body.velocity.x > 30)
                     this.sprite.body.velocity.x -= 4;
+                else if (this.sprite.body.velocity.x < 0)
+                    this.sprite.body.velocity.x += 4;
                 else
                     this.sprite.body.velocity.x = 30;
 
                 if (PlayState.cursors.right.isDown)
                     this.sprite.body.velocity.x = 500;
+                else if (PlayState.cursors.left.isDown)
+                    this.sprite.body.velocity.x = -200;
                 else if (this.sprite.position.x - game.camera.x > 100)
                     game.camera.x += 1;
 
