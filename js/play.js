@@ -115,7 +115,7 @@ var PlayState = {
     displayScore: function() {
         this.player.pause();
 
-        var score = PlayState.healthBar.width * 100;
+        var score = Math.round(PlayState.healthBar.width) * 100;
         var uiImage = game.add.image(0, 0, "ui-score");
         
         uiImage.position.x = game.camera.x + (uiImage.width / 2);
