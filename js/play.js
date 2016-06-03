@@ -121,7 +121,7 @@ var PlayState = {
         uiImage.position.x = game.camera.x + (uiImage.width / 2);
         uiImage.position.y = (game.height - uiImage.height) / 2;
 
-        var button = game.add.button(507, 458, null, function(){game.state.start("play")});
+        var button = game.add.button(507, 458, null, function(){game.state.start("credits")});
         button.width = 165;
         button.height = 62;
         button.input.useHandCursor = true;
