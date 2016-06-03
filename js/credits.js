@@ -8,13 +8,9 @@ var CreditsState = {
 
     create: function() {
         var bg = game.add.image(0,0, "creditScreen");
-        this.spacebar = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+        var button = game.add.button(614, 310, null, function(){game.state.start("play");});
+        button.width = 139;
+        button.height = 62;
+        button.input.useHandCursor = true;
     },
-
-    update: function() {
-        if (this.spacebar.isDown) {
-            console.log("hello hello hello");
-            game.state.start("play");
-        }
-    }
 };
