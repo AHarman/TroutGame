@@ -115,13 +115,13 @@ var PlayState = {
     displayScore: function() {
         this.player.pause();
 
-        var score = PlayState.healthBar.width * 100;
+        var score = Math.round(PlayState.healthBar.width) * 100;
         var uiImage = game.add.image(0, 0, "ui-score");
         
         uiImage.position.x = game.camera.x + (uiImage.width / 2);
         uiImage.position.y = (game.height - uiImage.height) / 2;
 
-        var button = game.add.button(507, 458, null, function(){game.state.start("play")});
+        var button = game.add.button(507, 458, null, function(){game.state.start("credits")});
         button.width = 165;
         button.height = 62;
         button.input.useHandCursor = true;
@@ -370,11 +370,15 @@ var PlayState = {
 
                 if (this.sprite.body.velocity.x > 30)
                     this.sprite.body.velocity.x -= 4;
+                else if (this.sprite.body.velocity.x < 0)
+                    this.sprite.body.velocity.x += 4;
                 else
                     this.sprite.body.velocity.x = 30;
 
                 if (PlayState.cursors.right.isDown)
                     this.sprite.body.velocity.x = 500;
+                else if (PlayState.cursors.left.isDown)
+                    this.sprite.body.velocity.x = -200;
                 else if (this.sprite.position.x - game.camera.x > 100)
                     game.camera.x += 1;
 
